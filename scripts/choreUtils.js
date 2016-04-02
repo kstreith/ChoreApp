@@ -45,6 +45,25 @@ var chore = chore || {};
           $curElement.text(viewModel[propName]);
         }
       }
+      if ($curElement.attr("tri-show")) {
+        var propName = $curElement.attr("tri-show");
+        if (viewModel[propName] === true) {
+          $curElement.show();
+        }
+        else {
+          $curElement.hide();
+        }        
+      }
+      if ($curElement.attr("tri-class")) {
+        var strConfig = $curElement.attr("tri-class");
+        var config = JSON.parse(strConfig);
+        if (viewModel[config.prop] === true) {
+          $curElement.addClass(config.className);
+        }
+        else {
+          $curElement.removeClass(config.className);
+        }        
+      }      
     });
   }
   

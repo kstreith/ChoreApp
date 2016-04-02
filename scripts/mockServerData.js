@@ -1,15 +1,30 @@
 (function () {
   var fakeData = {
-    'GET|/api/users': [{Name: 'John', Id: 1}, {Name: 'Mary', Id: 2}], //XSS: comment out to test cross-site scripting
-    'GET|/api/hackedUsers': [{Name: 'John', Id: 1}, {Name: '<b>Mary</b><script>alert("arbitrary js being executed in your page")</script>', Id: 2}],
-    'GET|/api/chores': [{Name: 'Take out trash', Id: 1}, {Name: 'Do dishes', Id: 2}],
-    'GET|/api/outstandingChores': [{Name: 'Sweep floor', Id: 1}, {Name: 'Make bed', Id: 2}],
+    'GET|/api/users': [
+      {Name: 'John', Id: 1},
+      {Name: 'Mary', Id: 2}],
+    'GET|/api/hackedUsers': [
+      {Name: 'John', Id: 1},
+      {Name: '<b>Mary</b><script>alert("arbitrary js being executed in your page")</script>', Id: 2}],
+    'GET|/api/chores': [
+      {Id: 1, ChildName: 'John', ChildId: 1, Description: 'Do Dishes', AssignedDaysFormatted: 'M W F Sa'},
+      {Id: 2, ChildName: 'John', ChildId: 1, Description: 'Take Out Trash', AssignedDaysFormatted: 'W'},
+      {Id: 5, ChildName: 'John', ChildId: 1, Description: 'Clean Room', AssignedDaysFormatted: 'Su'},
+      {Id: 3, ChildName: 'Mary', ChildId: 2, Description: 'Do Dishes', AssignedDaysFormatted: 'T Th Su'},
+      {Id: 4, ChildName: 'Mary', ChildId: 2, Description: 'Clean Room', AssignedDaysFormatted: 'Sa'}],
+    'GET|/api/thisWeek/1': [
+      {ChoreId: 1, ChildId: 1, Description: 'Do Dishes', DayFormatted: 'Monday', Completed: true, Overdue: false},
+      {ChoreId: 2, ChildId: 1, Description: 'Take Out Trash', DayFormatted: 'Monday', Completed: false, Overdue: true},
+      {ChoreId: 1, ChildId: 1, Description: 'Do Dishes', DayFormatted: 'Wednesday', Completed: false, Overdue: false},
+      {ChoreId: 1, ChildId: 1, Description: 'Do Dishes', DayFormatted: 'Friday', Completed: false, Overdue: false},
+      {ChoreId: 1, ChildId: 1, Description: 'Do Dishes', DayFormatted: 'Saturday', Completed: false, Overdue: false},
+      {ChoreId: 5, ChildId: 1, Description: 'Clean Room', DayFormatted: 'Sunday', Completed: true, Overdue: false}]
   }
   
   function setData(dfd, data) {
     setTimeout(function () {
       dfd.resolve(data, "success", {readyState: 4, responseText: JSON.stringify(data), responseJSON: data, status: 200, statusText: "OK"});
-    }, 100);
+    }, chore.ajaxDelay);
   }
   function setNotFound(dfd) {
     setTimeout(function () {

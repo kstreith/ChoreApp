@@ -5,44 +5,104 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>Under My Thumb</title>
+    <title>Under My Thumb - Chore Tracking</title>
 
     <!-- Bootstrap -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
+    <style>
+      .green { color: green; }
+      .red { color: red; }
+      .spinner { background-image: url('images/spinner.gif'); height: 36px; width: 36px; margin: auto; }
+    </style>    
   </head>
   <body>
-    <h1>Under My Thumb</h1>
-    <h2>Chore Tracking</h2>
+    <nav class="navbar navbar-default">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="#">Under My Thumb</a>
+      </div>
+    </nav>
     
-    <h3>Children</h3>
-    
-    <table id="userTable" class="table">
-    </table>
-    
-    <!-- EX-5: Simple templating, must also uncomment EX-5 in JS  -->
-    <!-- comment out original userTable, please -->
-    <!--
-    <table id="userTable" class="table">
-      <thead>
-        <tr><th>Name (<i>EX-5</i>)</th></tr>
-      </thead>
-      <tbody tri-repeat="users">
-        <tr>
-          <td tri-text="Name"></td>
-        </tr>
-      </tbody>    
-    </table>
-    -->
-    
+    <div class="row">
+      <div class="col-xs-10 col-xs-offset-1">
+        <div class="panel panel-info">
+          <div class="panel-heading">Children</div>
+          <div class="panel-body">
+            Manage list of children with chores.
+          </div>
+          <div class="table-responsive">
+            <table id="userTable" class="table table-bordered table-striped" style="display:hidden">
+            </table>   
+            <div id="userTableSpinner" class="spinner"></div>
 
-    <h3>Chores</h3>
-    <table id="choreTable" class="table">
-    </table>
+            <!-- EX-5: Simple templating, must also uncomment EX-5 in JS  -->
+            <!-- comment out original userTable, please -->
+            <!--
+            <table id="userTable" class="table table-bordered table-striped">
+              <thead>
+                <tr><th>Name (<i>EX-5</i>)</th></tr>
+              </thead>
+              <tbody tri-repeat="users">
+                <tr>
+                  <td tri-text="Name"></td>
+                </tr>
+              </tbody>    
+            </table>
+            -->            
+          </div>
+        </div>      
+      </div>
+    </div>
 
-    <h3>Chores This Week</h3>
-    <table id="thisWeekTable" class="table">
-    </table>
-    
+    <div class="row">
+      <div class="col-xs-10 col-xs-offset-1">
+        <div class="panel panel-info">
+          <div class="panel-heading">Chores</div>
+          <div class="panel-body">
+            Manage chore assignments for each child.
+          </div>
+          <div class="table-responsive">
+            <table id="choreTable" class="table table-bordered table-striped" style="display: none">
+              <thead>
+                <tr>
+                  <th>Child</th>
+                  <th>Description</th>
+                  <th>Assigned Days</th>
+                </tr>
+              </thead>              
+              <tbody>
+              </tbody>    
+            </table>
+            <div id="choreTableSpinner" class="spinner"></div>            
+          </div>
+        </div>      
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-xs-10 col-xs-offset-1">
+        <div class="panel panel-info">
+          <div class="panel-heading">John's Chores</div>
+          <div class="panel-body">
+            John's chores this week.
+          </div>
+          <div class="table-responsive">
+            <table id="thisWeekTable" class="table table-bordered table-striped" style="display: none">
+              <thead>
+                <tr>
+                  <th>Description</th>
+                  <th>Day</th>
+                  <th>Completed?</th>
+                </tr>
+              </thead>
+              <tbody>
+              </tbody>                 
+            </table>
+            <div id="thisWeekTableSpinner" class="spinner"></div>                        
+          </div>
+        </div>      
+      </div>
+    </div>
+        
     <script src="scripts/jquery-2.2.2.min.js"></script>
     <script src="scripts/mockServerData.js"></script>
     <script src="scripts/choreUtils.js"></script>

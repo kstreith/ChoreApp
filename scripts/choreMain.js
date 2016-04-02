@@ -3,21 +3,33 @@ var chore = chore || {};
   //-------------- USERS GRID ------------------
   chore.users = [];
   chore.fetchUsers = function () {
+    chore.renderUsersLoading(true);
     var userUrl = '/api/users';
     //var userUrl = '/api/hackedUsers'; //Uncomment for EX-3.1, EX-3.2, EX-4, EX-5
     return $.ajax({url: userUrl}).done(function (data) {
       chore.users = data;
+    chore.renderUsersLoading(false);
+      chore.renderUsers();
     });
   }
   
-  
+  chore.renderUsersLoading = function (isLoading) {
+    if (isLoading) {
+      $("#userTable").hide();
+      $("#userTableSpinner").show();
+    } else {
+      $("#userTable").show();
+      $("#userTableSpinner").hide();
+    }
+  }
+    
   //EX-0: No rendering at all
   chore.renderUsers = function () {
     alert('Render User Table, Data is: \n' + JSON.stringify(chore.users, null, 2));    
   }
   
   
-  /*
+  
   //EX-1: Append each row as we go using jquery
   chore.renderUsers = function () {
     var $table = $("#userTable");
@@ -28,7 +40,7 @@ var chore = chore || {};
       $tbody.append("<tr><td>" + chore.users[i].Name + "</td></tr>");
     }
   }
-  */
+  
   
   /*
   //EX-2: Wait until the end to add rows to document
@@ -114,27 +126,54 @@ var chore = chore || {};
   //-------------- CHORES GRID ------------------
   chore.chores = [];
   chore.fetchChores = function () {
+    chore.renderChoresLoading(true);
     return $.ajax({url: '/api/chores'}).done(function (data) {
       chore.chores = data;
+      chore.renderChoresLoading(false);
+      chore.renderChores();
     });
   }
   chore.renderChores = function () {
   }
-
+  
+  chore.renderChoresLoading = function (isLoading) {
+    if (isLoading) {
+      $("#choreTable").hide();
+      $("#choreTableSpinner").show();
+    } else {
+      $("#choreTable").show();
+      $("#choreTableSpinner").hide();
+    }
+  }
+  
   //-------------- OUTSTANDING CHORES GRID ------------------
-  chore.outstandingChores = [];
-  chore.fetchOutstandingChores = function () {
-    return $.ajax({url: '/api/outstandingChores'}).done(function (data) {
-      chore.outstandingChores = data;
+  chore.thisWeekChores = [];
+  chore.fetchThisWeekChores = function () {
+    chore.renderThisWeekChoresLoading(true);
+    return $.ajax({url: '/api/thisWeek/1'}).done(function (data) {
+      chore.thisWeekChores = data;
+      chore.renderThisWeekChoresLoading(false);
+      chore.renderThisWeekChores();
     });
   }
-  chore.renderOutstandingChores = function () {
+  chore.renderThisWeekChores = function (options) {
   }
-
+  
+  chore.renderThisWeekChoresLoading = function (isLoading) {
+    if (isLoading) {
+      $("#thisWeekTable").hide();
+      $("#thisWeekTableSpinner").show();
+    } else {
+      $("#thisWeekTable").show();
+      $("#thisWeekTableSpinner").hide();
+    }
+  }
+  
   chore.startApp = function () {
-    chore.fetchUsers().always(chore.renderUsers);
-    chore.fetchChores().always(chore.renderChores);
-    chore.fetchOutstandingChores().always(chore.renderOutstandingChores);
+    chore.fetchUsers();
+    chore.fetchChores();
+    chore.fetchThisWeekChores();
   }  
+  chore.ajaxDelay = 500;
   chore.startApp();
 }());
