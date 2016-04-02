@@ -133,6 +133,7 @@ var chore = chore || {};
     });
   }
   chore.renderChores = function () {
+    //TODO: Put code here
   }
   
   chore.renderChoresLoading = function (isLoading) {
@@ -155,7 +156,8 @@ var chore = chore || {};
       chore.renderThisWeekChores();
     });
   }
-  chore.renderThisWeekChores = function (options) {
+  chore.renderThisWeekChores = function () {
+    //TODO: Put code here
   }
   
   chore.renderThisWeekChoresLoading = function (isLoading) {
