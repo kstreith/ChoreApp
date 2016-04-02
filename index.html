@@ -14,11 +14,38 @@
     <h1>Under My Thumb</h1>
     <h2>Chore Tracking</h2>
     
+    <h3>Children</h3>
+    
     <table id="userTable" class="table">
+    </table>
+    
+    <!-- EX-5: Simple templating, must also uncomment EX-5 in JS  -->
+    <!-- comment out original userTable, please -->
+    <!--
+    <table id="userTable" class="table">
+      <thead>
+        <tr><th>Name (<i>EX-5</i>)</th></tr>
+      </thead>
+      <tbody tri-repeat="users">
+        <tr>
+          <td tri-text="Name"></td>
+        </tr>
+      </tbody>    
+    </table>
+    -->
+    
+
+    <h3>Chores</h3>
+    <table id="choreTable" class="table">
+    </table>
+
+    <h3>Chores This Week</h3>
+    <table id="thisWeekTable" class="table">
     </table>
     
     <script src="scripts/jquery-2.2.2.min.js"></script>
     <script src="scripts/mockServerData.js"></script>
+    <script src="scripts/choreUtils.js"></script>
     <script src="scripts/choreMain.js"></script>
   </body>
 </html>
