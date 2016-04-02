@@ -29,7 +29,7 @@ var chore = chore || {};
   }
   
   
-  
+  /*
   //EX-1: Append each row as we go using jquery
   chore.renderUsers = function () {
     var $table = $("#userTable");
@@ -40,7 +40,7 @@ var chore = chore || {};
       $tbody.append("<tr><td>" + chore.users[i].Name + "</td></tr>");
     }
   }
-  
+  */
   
   /*
   //EX-2: Wait until the end to add rows to document
@@ -174,6 +174,6 @@ var chore = chore || {};
     chore.fetchChores();
     chore.fetchThisWeekChores();
   }  
-  chore.ajaxDelay = 500;
+  chore.ajaxDelay = 2000;
   chore.startApp();
 }());
