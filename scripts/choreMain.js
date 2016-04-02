@@ -28,7 +28,6 @@ var chore = chore || {};
     alert('Render User Table, Data is: \n' + JSON.stringify(chore.users, null, 2));    
   }
   
-  
   /*
   //EX-1: Append each row as we go using jquery
   chore.renderUsers = function () {
@@ -75,9 +74,9 @@ var chore = chore || {};
     $table.append($tbody);
   }
   */
-    
-  //EX-3.2: Fix cross-site scripting attack in EX-1
-  /*
+  
+  /*  
+  //EX-3.2: Fix cross-site scripting attack in EX-1  
   chore.renderUsers = function () {
     var $table = $("#userTable");
     $table.empty();
@@ -88,7 +87,7 @@ var chore = chore || {};
     }
   }
   */
-  
+    
   /*
   //EX-4: Same as EX-3.1, but using browser DOM, e.g. no dependency on JQuery 
   chore.renderUsers = function () {
@@ -114,15 +113,15 @@ var chore = chore || {};
     table.appendChild(thead);
     table.appendChild(tbody);
   }
-  */ 
+  */
   
-  //EX-5: A simple templating language example, must also uncomment EX-5 in HTML file for this to work
   /*
+  //EX-5: A simple templating language example, must also uncomment EX-5 in HTML file for this to work  
   chore.renderUsers = function () {
     chore.executeTemplate($("#userTable"), chore);
   }
   */
-   
+     
   //-------------- CHORES GRID ------------------
   chore.chores = [];
   chore.fetchChores = function () {
@@ -174,6 +173,6 @@ var chore = chore || {};
     chore.fetchChores();
     chore.fetchThisWeekChores();
   }  
-  chore.ajaxDelay = 2000;
+  chore.ajaxDelay = 500;
   chore.startApp();
 }());
