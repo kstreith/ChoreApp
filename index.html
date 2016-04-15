@@ -30,16 +30,9 @@
             Manage list of children with chores.
           </div>
           <div class="table-responsive">
-            <table id="userTable" class="table table-bordered table-striped" style="display:hidden">
-            </table>
-            <div id="userTableSpinner" class="spinner"></div>
-
-            <!-- EX-5: Simple templating, must also uncomment EX-5 in JS  -->
-            <!-- comment out original userTable, please -->
-            <!--
             <table id="userTable" class="table table-bordered table-striped">
               <thead>
-                <tr><th>Name (<i>EX-5</i>)</th></tr>
+                <tr><th>Name</th></tr>
               </thead>
               <tbody tri-repeat="users">
                 <tr>
@@ -47,7 +40,7 @@
                 </tr>
               </tbody>    
             </table>
-            -->          
+            <div id="userTableSpinner" class="spinner"></div>            
           </div>
         </div>      
       </div>
@@ -69,8 +62,13 @@
                   <th>Assigned Days</th>
                 </tr>
               </thead>              
-              <tbody>
-              </tbody>    
+              <tbody tri-repeat="chores">
+                <tr>
+                  <td tri-text="ChildName"></td>
+                  <td tri-text="Description"></td>
+                  <td tri-text="AssignedDaysFormatted"></td>
+                </tr>
+              </tbody>        
             </table>
             <div id="choreTableSpinner" class="spinner"></div>            
           </div>
@@ -94,15 +92,13 @@
                   <th>Completed?</th>
                 </tr>
               </thead>
-              <tbody>
-              <!--
-                <tr class="danger">
-                  <td>Do Dishes</td>
-                  <td>Monday</td>
-                  <td><span class="glyphicon glyphicon-ok green"></span></td>
-                </tr> 
-              -->                
-              </tbody>                 
+              <tbody tri-repeat="thisWeekChores">
+                <tr tri-class='{ "prop": "Overdue", "className": "danger"}'>
+                  <td tri-text="Description"></td>
+                  <td tri-text="DayFormatted">Monday</td>
+                  <td><span tri-show="Completed" class="glyphicon glyphicon-ok green"></span></td>
+                </tr>
+              </tbody>                    
             </table>
             <div id="thisWeekTableSpinner" class="spinner"></div>                        
           </div>
