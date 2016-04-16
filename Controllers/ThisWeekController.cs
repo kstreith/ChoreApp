@@ -14,7 +14,7 @@ namespace ChoreApp.Controllers
 
         public ThisWeekController()
         {
-            Repo = new ChoreRepository();
+            Repo = ChoreRepository.GetInstance();
         }
 
         // GET api/<controller>

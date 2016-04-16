@@ -14,7 +14,7 @@ namespace ChoreApp.Controllers
 
         public ChoresController()
         {
-            Repo = new ChoreRepository();
+            Repo = ChoreRepository.GetInstance();
         }
 
         // GET api/users

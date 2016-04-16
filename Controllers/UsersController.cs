@@ -14,7 +14,7 @@ namespace ChoreApp.Controllers
 
         public UsersController()
         {
-            Repo = new ChoreRepository();
+            Repo = ChoreRepository.GetInstance();
         }
 
         // GET api/users
@@ -24,24 +24,27 @@ namespace ChoreApp.Controllers
         }
 
         // GET api/<controller>/5
-        public string Get(int id)
+        public User Get(int id)
         {
-            return "value";
+            return Repo.GetUser(id);
         }
 
         // POST api/<controller>
-        public void Post([FromBody]string value)
+        public void Post(User value)
         {
+            Repo.AddUser(value);
         }
 
         // PUT api/<controller>/5
-        public void Put(int id, [FromBody]string value)
+        public void Put(int id, User value)
         {
+            Repo.EditUser(id, value);
         }
 
         // DELETE api/<controller>/5
         public void Delete(int id)
         {
+            Repo.DeleteUser(id);
         }
     }
 }

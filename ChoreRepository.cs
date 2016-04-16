@@ -1,19 +1,31 @@
 ﻿using ChoreApp.Models;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Web;
 
 namespace ChoreApp
 {
     public class ChoreRepository
     {
-        private Dictionary<int, User> Users { get; set; }
-        private Dictionary<int, Chore> Chores { get; set; }
+        private ConcurrentDictionary<int, User> Users { get; set; }
+        private ConcurrentDictionary<int, Chore> Chores { get; set; }
+        private int MaxUserId;
+        private int MaxChoreId;
+        private static Lazy<ChoreRepository> _repo = new Lazy<ChoreRepository>();
 
         public ChoreRepository()
         {
+            Users = new ConcurrentDictionary<int, User>();
+            Chores = new ConcurrentDictionary<int, Chore>();
             Initialize();
+        }
+
+        public static ChoreRepository GetInstance()
+        {
+            return _repo.Value;
         }
 
         public List<User> GetAllUsers()
@@ -23,6 +35,13 @@ namespace ChoreApp
 
         public List<Chore> GetAllChores()
         {
+            /*var chores = new List<Chore>();
+            foreach (var i in Chores.Values)
+            {
+                chores.Add(i);
+            }
+            return chores;*/
+
             return Chores.Values.Select(x => x.SetUser(Users[x.ChildId])).OrderBy(x => x.ChildId).ToList();
         }
 
@@ -67,16 +86,62 @@ namespace ChoreApp
 
         private void Initialize()
         {
-            Users = new Dictionary<int, User>();
-            Users.Add(1, new User(1, "John"));
-            Users.Add(2, new User(2, "Mary"));
+            Users.Clear();
+            Chores.Clear();
+            Interlocked.Exchange(ref MaxUserId, 0);
+            Interlocked.Exchange(ref MaxChoreId, 0);
 
-            Chores = new Dictionary<int, Chore>();
-            Chores.Add(1, new Chore(1, 1, "Do Dishes", onMonday: true, onWednesday: true, onFriday: true, onSaturday: true));
-            Chores.Add(2, new Chore(2, 1, "Take Out Trash", onWednesday: true ));
-            Chores.Add(5, new Chore(5, 1, "Clean Room", onSunday: true ));
-            Chores.Add(3, new Chore(3, 2, "Do Dishes", onTuesday: true, onThursday: true, onSunday: true ));
-            Chores.Add(4, new Chore(4, 2, "Clean Room", onSaturday: true ));
+            var userId = Interlocked.Increment(ref MaxUserId);
+            var user = new User(userId, "John");
+            Users.TryAdd(userId, user);
+            var choreId = Interlocked.Increment(ref MaxChoreId);
+            var chore = new Chore(choreId, userId, "Do Dishes", onMonday: true, onWednesday: true, onFriday: true, onSaturday: true);
+            Chores.TryAdd(choreId, chore);
+            choreId = Interlocked.Increment(ref MaxChoreId);
+            chore = new Chore(choreId, userId, "Take Out Trash", onWednesday: true);
+            Chores.TryAdd(choreId, chore);
+            choreId = Interlocked.Increment(ref MaxChoreId);
+            chore = new Chore(choreId, userId, "Clean Room", onSunday: true);
+            Chores.TryAdd(choreId, chore);
+
+
+            userId = Interlocked.Increment(ref MaxUserId);
+            user = new User(userId, "Mary");
+            Users.TryAdd(userId, user);
+            choreId = Interlocked.Increment(ref MaxChoreId);
+            chore = new Chore(choreId, userId, "Do Dishes", onTuesday: true, onThursday: true, onSunday: true);
+            Chores.TryAdd(choreId, chore);
+            choreId = Interlocked.Increment(ref MaxChoreId);
+            chore = new Chore(choreId, userId, "Clean Room", onSaturday: true);
+            Chores.TryAdd(choreId, chore);
+        }
+
+        public User GetUser(int id)
+        {
+            return Users[id];
+        }
+
+        public void AddUser(User value)
+        {
+            var userId = Interlocked.Increment(ref MaxUserId);
+            var user = new User(userId, value.Name);
+            Users.TryAdd(userId, user);
+        }
+
+        public void EditUser(int id, User value)
+        {
+            var user = Users[id];
+            if (user != null)
+            {
+                var editUser = new User(id, value.Name);
+                Users[id] = editUser;
+            }
+        }
+
+        public void DeleteUser(int id)
+        {
+            User user = null;
+            Users.TryRemove(id, out user);
         }
     }
 }
