@@ -10,16 +10,17 @@ namespace ChoreApp.Controllers
 {
     public class ThisWeekController : ApiController
     {
+        private ChoreRepository Repo;
+
+        public ThisWeekController()
+        {
+            Repo = new ChoreRepository();
+        }
+
         // GET api/<controller>
         public IEnumerable<AssignmentSummary> Get(int id)
         {
-            var list = new List<AssignmentSummary>();
-            if (id == 1)
-            {
-                list.Add(new AssignmentSummary { ChoreId = 1, ChildId = 1, Description = "Do Dishes", DayFormatted = "Monday", Completed = true, Overdue = false });
-                list.Add(new AssignmentSummary { ChoreId = 2, ChildId = 1, Description = "Take Out Trash", DayFormatted = "Monday", Completed = false, Overdue = true });
-            }
-            return list;
+            return Repo.GetChildAssignmentsThisWeek(id);
         }
 
         /*// GET api/<controller>/5

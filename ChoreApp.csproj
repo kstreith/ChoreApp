@@ -83,6 +83,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="ChoreRepository.cs" />
     <Compile Include="Controllers\ChoresController.cs" />
     <Compile Include="Controllers\ThisWeekController.cs" />
     <Compile Include="Controllers\UsersController.cs" />

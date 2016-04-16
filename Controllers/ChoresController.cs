@@ -10,13 +10,17 @@ namespace ChoreApp.Controllers
 {
     public class ChoresController : ApiController
     {
+        private ChoreRepository Repo;
+
+        public ChoresController()
+        {
+            Repo = new ChoreRepository();
+        }
+
         // GET api/users
         public IEnumerable<Chore> Get()
         {
-            var list = new List<Chore>();
-            list.Add(new Chore { Id = 1, ChildName = "John", ChildId = 1, Description = "Do Dishes", AssignedDaysFormatted = "M W F Sa" });
-            list.Add(new Chore { Id = 2, ChildName = "John", ChildId = 1, Description = "Take Out Trash", AssignedDaysFormatted = "W"});
-            return list;
+            return Repo.GetAllChores();
         }
 
         // GET api/<controller>/5
