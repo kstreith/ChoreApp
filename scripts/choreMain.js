@@ -21,6 +21,9 @@ var chore = chore || {};
       $("#userTable").show();
       $("#userTableSpinner").hide();
     }
+    $("#userTable").click(function () {
+        alert('clicked!');
+    });
   }    
   chore.renderUsers = function () {
     chore.executeTemplate($("#userTable"), chore);

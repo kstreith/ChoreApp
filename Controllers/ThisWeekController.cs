@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Http;
 
 namespace ChoreApp.Controllers
@@ -18,7 +19,7 @@ namespace ChoreApp.Controllers
         }
 
         // GET api/<controller>
-        public IEnumerable<AssignmentSummary> Get(int id)
+        public List<AssignmentSummary> Get(int id)
         {
             return Repo.GetChildAssignmentsThisWeek(id);
         }

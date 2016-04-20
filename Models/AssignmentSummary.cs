@@ -5,17 +5,15 @@ using System.Web;
 
 namespace ChoreApp.Models
 {
-    public enum Day { Sunday = 1, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday };
     public class AssignmentSummary
     {
-        public AssignmentSummary(int choreId, int childId, string description, Day day, bool completed, bool overdue)
+        public AssignmentSummary(int choreId, int childId, string description, DayOfWeek day, bool completed)
         {
             ChoreId = choreId;
             ChildId = childId;
             Description = description;
             Day = day;
             Completed = completed;
-            Overdue = overdue;
         }
         public AssignmentSummary Clone()
         {
@@ -31,8 +29,16 @@ namespace ChoreApp.Models
                 return Day.ToString();
             }
         }
-        public Day Day { get; private set; }
+        public DayOfWeek Day { get; private set; }
         public bool Completed { get; private set; }
-        public bool Overdue { get; private set; }
+        public bool Overdue
+        {
+            get
+            {
+                var todayDay = DateTime.Now.DayOfWeek;
+                //var todayDay = DayOfWeek.Friday;
+                return !Completed && todayDay > Day;
+            }
+        }
     }
 }

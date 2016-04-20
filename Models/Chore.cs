@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -7,11 +8,10 @@ namespace ChoreApp.Models
 {
     public class Chore
     {
-        public Chore(int id, int userId, string description, bool onSunday = false, bool onMonday = false, bool onTuesday = false, bool onWednesday = false, bool onThursday = false, bool onFriday = false, bool onSaturday = false)
+        public Chore(int id, int childId, string description, bool onSunday = false, bool onMonday = false, bool onTuesday = false, bool onWednesday = false, bool onThursday = false, bool onFriday = false, bool onSaturday = false)
         {
             Id = id;
-            //ChildName = 
-            ChildId = userId;
+            ChildId = childId;
             Description = description;
             OnSunday = onSunday;
             OnMonday = onMonday;
