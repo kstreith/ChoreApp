@@ -41,5 +41,19 @@ namespace ChoreApp.Controllers
         {
             Repo.DeleteChore(id);
         }
+
+        [Route("api/chores/complete")]
+        [HttpPost]
+        public void Complete(CompleteChorePayload value)
+        {
+            Repo.CompleteChore(value);
+        }
+
+        [Route("api/chores/clear")]
+        [HttpPost]
+        public void Clear(CompleteChorePayload value)
+        {
+            Repo.ClearChoreCompletion(value);
+        }
     }
 }

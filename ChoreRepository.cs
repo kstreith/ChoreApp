@@ -390,7 +390,7 @@ namespace ChoreApp
             }
         }
 
-        public void CompleteChore(int userId, int choreId, DayOfWeek day)
+        public void CompleteChore(CompleteChorePayload data)
         {
             if (!gl.TryEnterUpgradeableReadLock(LOCK_TIMEOUT))
             {
@@ -398,9 +398,9 @@ namespace ChoreApp
             }
             try
             {
-                var dateToComplete = GetDateTimeThisWeek(day);
+                var dateToComplete = GetDateTimeThisWeek(data.Day);
                 var completedChores = CompletedChores.Values;
-                var alreadyCompleted = completedChores.Any(x => x.ChildId == userId && x.ChoreId == choreId && x.Date.HasValue && IsDateMatch(x.Date.Value, dateToComplete));
+                var alreadyCompleted = completedChores.Any(x => x.ChildId == data.ChildId && x.ChoreId == data.ChoreId && x.Date.HasValue && IsDateMatch(x.Date.Value, dateToComplete));
                 if (alreadyCompleted)
                 {
                     return;
@@ -409,7 +409,7 @@ namespace ChoreApp
                 try
                 {
                     var completedChoreId = ++MaxCompletedChoreId;
-                    CompletedChores.Add(completedChoreId, new CompletedChore(completedChoreId, choreId, userId, GetDateTimeThisWeek(day)));
+                    CompletedChores.Add(completedChoreId, new CompletedChore(completedChoreId, data.ChoreId, data.ChildId, GetDateTimeThisWeek(data.Day)));
                     PersistToDisk();
                 }
                 finally
@@ -423,7 +423,7 @@ namespace ChoreApp
             }
         }
 
-        public void ClearChoreCompletion(int userId, int choreId, DayOfWeek day)
+        public void ClearChoreCompletion(CompleteChorePayload data)
         {
             if (!gl.TryEnterUpgradeableReadLock(LOCK_TIMEOUT))
             {
@@ -431,9 +431,9 @@ namespace ChoreApp
             }
             try
             {
-                var dateToRemove = GetDateTimeThisWeek(day);
+                var dateToRemove = GetDateTimeThisWeek(data.Day);
                 var completedChores = CompletedChores.Values;
-                var completedRecords = completedChores.Where(x => x.ChildId == userId && x.ChoreId == choreId && x.Date.HasValue && IsDateMatch(x.Date.Value, dateToRemove));
+                var completedRecords = completedChores.Where(x => x.ChildId == data.ChildId && x.ChoreId == data.ChoreId && x.Date.HasValue && IsDateMatch(x.Date.Value, dateToRemove)).ToList();
                 if (!completedRecords.Any())
                 {
                     return;

@@ -92,6 +92,7 @@
     </Compile>
     <Compile Include="Models\AssignmentSummary.cs" />
     <Compile Include="Models\Chore.cs" />
+    <Compile Include="Models\CompleteChorePayload.cs" />
     <Compile Include="Models\CompletedChore.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
