@@ -31,7 +31,11 @@
       dfd.reject({readyState: 4, responseText: "Mock data not found!", status: 404, statusText: "Not found"}, "error", "Not Found");      
     }, 100);
   }
-  /*$.ajax = function (url, settings) {
+  var originalAjax = $.ajax;
+  $.ajax = function (url, settings) {
+    if (chore && chore.mockAjax == false) {
+      return originalAjax.apply($, arguments);
+    }
     var options = {};
     var defaults = { type: 'GET' };
     if ($.isPlainObject(url)) {
@@ -47,6 +51,6 @@
       setNotFound(dfd);
     }
     return dfd.promise();
-  }*/
+  }
     
 }());

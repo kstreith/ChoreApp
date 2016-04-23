@@ -8,6 +8,14 @@ var chore = chore || {};
   chore.escapeHTMLJQuery = function (string) {
     return $("<div>").text(string).html();
   }
+  chore.showModal = function ($elem) {
+    $("<div class='tri-modal-overlay'></div>").appendTo($elem.parent());
+    $elem.addClass("tri-modal-open");
+  }
+  chore.hideModal = function ($elem) {
+    $(".tri-modal-overlay").remove();
+    $elem.removeClass("tri-modal-open");
+  }
   
   var renderLoop = function ($loopContainer, parentViewModel) {
     var $template = $loopContainer.data("triLoopTemplate");
@@ -63,7 +71,12 @@ var chore = chore || {};
         else {
           $curElement.removeClass(config.className);
         }        
-      }      
+      }
+      if ($curElement.attr("tri-attr")) {
+        var strConfig = $curElement.attr("tri-attr");
+        var config = JSON.parse(strConfig);
+        $curElement.attr(config.prop, viewModel[config.data]);
+      }
     });
   }
   

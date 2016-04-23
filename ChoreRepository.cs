@@ -460,25 +460,30 @@ namespace ChoreApp
 
         private void PersistToDisk()
         {
-            var writeId = ++WriteCount;
-            var obj = new
+            try
             {
-                MaxUserId = MaxUserId,
-                MaxChoreId = MaxChoreId,
-                MaxCompletedChoreId = MaxCompletedChoreId,
-                WriteId = writeId,
-                Users = Users.Values,
-                Chores = Chores.Values,
-                CompletedChores = CompletedChores.Values
-            };
-            var str = JsonConvert.SerializeObject(obj, Formatting.Indented);
+                var writeId = ++WriteCount;
+                var obj = new
+                {
+                    MaxUserId = MaxUserId,
+                    MaxChoreId = MaxChoreId,
+                    MaxCompletedChoreId = MaxCompletedChoreId,
+                    WriteId = writeId,
+                    Users = Users.Values,
+                    Chores = Chores.Values,
+                    CompletedChores = CompletedChores.Values
+                };
+                var str = JsonConvert.SerializeObject(obj, Formatting.Indented);
 
-            var appDataPath = HostingEnvironment.MapPath("/App_Data/");
-            var fileName = Guid.NewGuid().ToString() + ".json";
-            var jsonFile = Path.Combine(appDataPath, fileName);
-            using (var swriter = File.CreateText(jsonFile)) {
-                swriter.Write(str);
+                var appDataPath = HostingEnvironment.MapPath("/App_Data/");
+                var fileName = Guid.NewGuid().ToString() + ".json";
+                var jsonFile = Path.Combine(appDataPath, fileName);
+                using (var swriter = File.CreateText(jsonFile))
+                {
+                    swriter.Write(str);
+                }
             }
+            catch (Exception e) { } //swallow exceptions - if write fails that is perfectly fine
         }
 
         private void Initialize()
@@ -496,7 +501,7 @@ namespace ChoreApp
                     return;
                 }
             }
-            catch (Exception ex)
+            catch (Exception ex) //swallow exceptions - if init from disk fails that is perfectly fine
             {
                 Debug.Print(ex.ToString());
             }

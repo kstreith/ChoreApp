@@ -24,25 +24,22 @@ namespace ChoreApp.Controllers
             return Repo.GetAllChores();
         }
 
-        // GET api/<controller>/5
-        public string Get(int id)
-        {
-            return "value";
-        }
-
         // POST api/<controller>
-        public void Post([FromBody]string value)
+        public void Post(Chore value)
         {
+            Repo.AddChore(value);
         }
 
         // PUT api/<controller>/5
-        public void Put(int id, [FromBody]string value)
+        public void Put(int id, Chore value)
         {
+            Repo.EditChore(id, value);
         }
 
         // DELETE api/<controller>/5
         public void Delete(int id)
         {
+            Repo.DeleteChore(id);
         }
     }
 }

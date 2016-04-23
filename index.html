@@ -13,8 +13,15 @@
       .green { color: green; }
       .red { color: red; }
       .spinner { background-image: url('images/spinner.gif'); height: 36px; width: 36px; margin: auto; }
-      .tri-modal { position: fixed; top: 0px; bottom: 0px; left: 0px; right: 0px; z-index: 1050; }
-      .tri-modal-dialog { width: 600px; margin: 20px auto; background-color: white; position: relative; }
+      .tri-modal-overlay { position: fixed; top: 0px; bottom: 0px; left: 0px; right: 0px; z-index: 1050; background-color: black; opacity: 0.3; }
+      .tri-modal-dialog { display: none; position: fixed; top: 0px; bottom: 0px; left: 0px; right: 0px; z-index: 1051; }
+      .tri-modal-dialog-content { width: 600px; margin: 20px auto; background-color: white; position: relative; z-index: 1052; border-radius: 5px; box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.55); }
+      .tri-modal-dialog.tri-modal-open { display: block; }
+      .tri-modal-body { padding: 10px; }
+      .tri-modal-buttons { float: right; padding: 10px; }
+      .tri-modal-dialog-content { content: ""; display: table; clear: both; }
+      .form-horizontal { padding: 15px; }
+      .actions { width: 50px }
     </style>    
   </head>
   <body>
@@ -27,23 +34,49 @@
     <div class="row">
       <div class="col-xs-10 col-xs-offset-1">
         <div class="panel panel-info">
-          <div class="panel-heading">Children</div>
+          <div class="panel-heading">Children <span id="addUser" class="glyphicon glyphicon-plus green pull-right"></span></div>
           <div class="panel-body">
             Manage list of children with chores.
           </div>
           <div class="table-responsive">
-              <div class="tri-modal">
-                  <div class="tri-modal-dialog">
-                      Stuff in dialog
-                  </div>
+            <div id="confirmDeleteUserModal" class="tri-modal-dialog">
+              <div class="tri-modal-dialog-content">
+                <div class="tri-modal-body">
+                  Are you sure, you want to delete?
+                </div>
+                <div class="tri-modal-buttons">
+                  <button id="confirmUserDeletion" class="btn">Ok</button>
+                  <button id="cancelUserDeletion" class="btn">Cancel</button>
+                </div>
               </div>
+            </div>
+            <div id="addEditUserModal" class="tri-modal-dialog">
+              <div class="tri-modal-dialog-content">
+                <div class="tri-modal-body">
+                  <form class="form-horizontal">
+                    <div class="form-group">
+                      <label for="userName">Name</label>
+                      <input type="text" class="form-control" id="userName" />
+                    </div>
+                  </form>
+                </div>
+                <div class="tri-modal-buttons">
+                  <button id="addEditUserOk" class="btn">Ok</button>
+                  <button id="addEditUserCancel" class="btn">Cancel</button>
+                </div>
+              </div>
+            </div>
             <table id="userTable" class="table table-bordered table-striped">
               <thead>
-                <tr><th>Name</th></tr>
+                <tr><th>Name</th><th class="actions">Actions</th></tr>
               </thead>
               <tbody tri-repeat="users">
                 <tr>
                   <td tri-text="Name"></td>
+                  <td>
+                    <span tri-attr='{ "prop": "data-id", "data": "Id"}' class="glyphicon glyphicon-pencil green editUser"></span>
+                    <span tri-attr='{ "prop": "data-id", "data": "Id"}' class="glyphicon glyphicon-remove red deleteUser"></span>
+                  </td>
                 </tr>
               </tbody>    
             </table>
@@ -56,7 +89,7 @@
     <div class="row">
       <div class="col-xs-10 col-xs-offset-1">
         <div class="panel panel-info">
-          <div class="panel-heading">Chores</div>
+          <div class="panel-heading">Chores <span id="addChore" class="glyphicon glyphicon-plus green pull-right"></span></div>
           <div class="panel-body">
             Manage chore assignments for each child.
           </div>
@@ -67,6 +100,7 @@
                   <th>Child</th>
                   <th>Description</th>
                   <th>Assigned Days</th>
+                  <th class="actions">Actions</th>
                 </tr>
               </thead>              
               <tbody tri-repeat="chores">
@@ -74,12 +108,85 @@
                   <td tri-text="ChildName"></td>
                   <td tri-text="Description"></td>
                   <td tri-text="AssignedDaysFormatted"></td>
+                  <td>
+                    <span tri-attr='{ "prop": "data-id", "data": "Id"}' class="glyphicon glyphicon-pencil green editChore"></span>
+                    <span tri-attr='{ "prop": "data-id", "data": "Id"}' class="glyphicon glyphicon-remove red deleteChore"></span>
+                  </td>
                 </tr>
               </tbody>        
             </table>
             <div id="choreTableSpinner" class="spinner"></div>            
           </div>
         </div>      
+      </div>
+    </div>
+    <div id="confirmDeleteChoreModal" class="tri-modal-dialog">
+      <div class="tri-modal-dialog-content">
+        <div class="tri-modal-body">
+          Are you sure, you want to delete?
+        </div>
+        <div class="tri-modal-buttons">
+          <button id="confirmChoreDeletion" class="btn">Ok</button>
+          <button id="cancelChoreDeletion" class="btn">Cancel</button>
+        </div>
+      </div>
+    </div>
+    <div id="addEditChoreModal" class="tri-modal-dialog">
+      <div class="tri-modal-dialog-content">
+        <div class="tri-modal-body">
+          <form class="form-horizontal">
+            <div class="form-group">
+              <label for="choreDescription">Description</label>
+              <input type="text" class="form-control" id="choreDescription" />
+            </div>
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" value="" id="choreOnSunday">
+                Sunday
+              </label>
+            </div>
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" value="" id="choreOnMonday">
+                Monday
+              </label>
+            </div>
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" value="" id="choreOnTuesday">
+                Tuesday
+              </label>
+            </div>
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" value="" id="choreOnWednesday">
+                Wednesday
+              </label>
+            </div>
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" value="" id="choreOnThursday">
+                Thursday
+              </label>
+            </div>
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" value="" id="choreOnFriday">
+                Friday
+              </label>
+            </div>
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" value="" id="choreOnSaturday">
+                Saturday
+              </label>
+            </div>
+          </form>
+        </div>
+        <div class="tri-modal-buttons">
+          <button id="addEditChoreOk" class="btn">Ok</button>
+          <button id="addEditChoreCancel" class="btn">Cancel</button>
+        </div>
       </div>
     </div>
 

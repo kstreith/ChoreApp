@@ -12,6 +12,34 @@ var chore = chore || {};
       chore.renderUsers();
     });
   }
+
+  document.querySelector("#addUser").addEventListener("click", function (e) {
+    chore.userAddEditType = 'add';
+    chore.showModal($("#addEditUserModal"));
+  });
+  document.getElementById("addEditUserOk").addEventListener("click", function (e) {
+    //var name = $("#userName").val();
+    var name = document.getElementById("userName").value;
+    if (chore.userAddEditType === 'add') {
+      var obj = { Id: -1, Name: name };
+      var data = JSON.stringify(obj);
+      $.ajax({ url: '/api/users', type: 'POST', data: data, contentType: 'application/json' }).done(function () {
+        chore.fetchUsers();
+      });
+      chore.hideModal($("#addEditUserModal"));
+    } else if (chore.userAddEditType === 'edit') {
+      var id = chore.editUser.Id;
+      var obj = { Id: id, Name: name };
+      var data = JSON.stringify(obj);
+      $.ajax({ url: '/api/users/' + window.encodeURIComponent(id), type: 'PUT', data: data, contentType: 'application/json' }).done(function () {
+        chore.fetchUsers();
+      });
+      chore.hideModal($("#addEditUserModal"));
+    }
+  });
+  document.getElementById("addEditUserCancel").addEventListener("click", function () {
+    chore.hideModal($("#addEditUserModal"));
+  });
   
   chore.renderUsersLoading = function (isLoading) {
     if (isLoading) {
@@ -21,15 +49,96 @@ var chore = chore || {};
       $("#userTable").show();
       $("#userTableSpinner").hide();
     }
-    $("#userTable").click(function () {
-        alert('clicked!');
+  } 
+  $("#confirmUserDeletion").on("click", function () {
+    $.ajax({ url: '/api/users/' + window.encodeURIComponent(chore.deleteUserId), type: 'DELETE' }).done(function () {
+      chore.fetchUsers();
     });
-  }    
+    chore.hideModal($("#confirmDeleteUserModal"));
+  });
+  $("#cancelUserDeletion").on("click", function () {
+    chore.hideModal($("#confirmDeleteUserModal"));
+  });
   chore.renderUsers = function () {
     chore.executeTemplate($("#userTable"), chore);
+    /*
+    $(".deleteUser").click(function (e) {      
+      var id = e.target.attributes["data-id"].value;
+      chore.showModal($("#confirmDeleteUserModal"));
+      $("#confirmUserDeletion").on("click", function () {
+        $.ajax({ url: '/api/users/' + window.encodeURIComponent(id), type: 'DELETE' }).done(function () {
+          chore.fetchUsers();
+        });
+        hideModal($("#confirmDeleteUserModal"));
+      });
+      $("#cancelUserDeletion").on("click", function () {
+        hideModal($("#confirmDeleteUserModal"));
+      });
+    });*/
+    $(".deleteUser").click(function (e) {
+      chore.deleteUserId = e.target.attributes["data-id"].value;
+      chore.showModal($("#confirmDeleteUserModal"));
+    });
+    $(".editUser").click(function (e) {
+      var editId = e.target.attributes["data-id"].value;
+      var matchedUsers = chore.users.filter(function (user) {
+        return String(user.Id) == editId;
+      });
+      if (!matchedUsers || !matchedUsers.length) {
+        return;
+      }
+      chore.userAddEditType = 'edit';
+      chore.editUser = matchedUsers[0];
+      document.getElementById("userName").value = chore.editUser.Name;
+      chore.showModal($("#addEditUserModal"));
+    });
   }
      
   //-------------- CHORES GRID ------------------
+  document.querySelector("#addChore").addEventListener("click", function (e) {
+    chore.choreAddEditType = 'add';
+    chore.showModal($("#addEditChoreModal"));
+  });
+  $("#confirmChoreDeletion").on("click", function () {
+    $.ajax({ url: '/api/chores/' + window.encodeURIComponent(chore.deleteChoreId), type: 'DELETE' }).done(function () {
+      chore.fetchChores();
+    });
+    chore.hideModal($("#confirmDeleteChoreModal"));
+  });
+  $("#cancelChoreDeletion").on("click", function () {
+    chore.hideModal($("#confirmDeleteChoreModal"));
+  });
+
+  document.getElementById("addEditChoreOk").addEventListener("click", function (e) {
+    var description = $("#choreDescription").val();
+    var onSunday = $("#choreOnSunday").prop("checked");
+    var onMonday = $("#choreOnMonday").is(":checked");
+    var onTuesday = $("#choreOnTuesday")[0].checked;
+    var onWednesday = $("#choreOnWednesday").is(":checked");
+    var onThursday = $("#choreOnThursday").is(":checked");
+    var onFriday = $("#choreOnFriday").is(":checked");
+    var onSaturday = $("#choreOnSaturday").is(":checked");
+    if (chore.choreAddEditType === 'add') {
+      var obj = { Id: -1, ChildId: 1, Description: description, OnSunday: onSunday, OnMonday: onMonday, OnTuesday: onTuesday, OnWednesday: onWednesday, OnThursday: onThursday, OnFriday: onFriday, OnSaturday: onSaturday };
+      var data = JSON.stringify(obj);
+      $.ajax({ url: '/api/chores', type: 'POST', data: data, contentType: 'application/json' }).done(function () {
+        chore.fetchChores();
+      });
+      chore.hideModal($("#addEditChoreModal"));
+    } else if (chore.choreAddEditType === 'edit') {
+      var id = chore.editChore.Id;
+      var obj = { Id: id, ChildId: 1, Description: description, OnSunday: onSunday, OnMonday: onMonday, OnTuesday: onTuesday, OnWednesday: onWednesday, OnThursday: onThursday, OnFriday: onFriday, OnSaturday: onSaturday };
+      var data = JSON.stringify(obj);
+      $.ajax({ url: '/api/chores/' + window.encodeURIComponent(id), type: 'PUT', data: data, contentType: 'application/json' }).done(function () {
+        chore.fetchChores();
+      });
+      chore.hideModal($("#addEditChoreModal"));
+    }
+  });
+  document.getElementById("addEditChoreCancel").addEventListener("click", function () {
+    chore.hideModal($("#addEditChoreModal"));
+  });
+
   chore.chores = [];
   chore.fetchChores = function () {
     chore.renderChoresLoading(true);
@@ -40,7 +149,31 @@ var chore = chore || {};
     });
   }
   chore.renderChores = function () {
-    chore.executeTemplate($("#choreTable"), chore);    
+    chore.executeTemplate($("#choreTable"), chore);
+    $(".deleteChore").click(function (e) {
+      chore.deleteChoreId = e.target.attributes["data-id"].value;
+      chore.showModal($("#confirmDeleteChoreModal"));
+    });
+    $(".editChore").click(function (e) {
+      var editId = e.target.attributes["data-id"].value;
+      var matchedChores = chore.chores.filter(function (user) {
+        return String(user.Id) == editId;
+      });
+      if (!matchedChores || !matchedChores.length) {
+        return;
+      }
+      chore.choreAddEditType = 'edit';
+      chore.editChore = matchedChores[0];
+      document.getElementById("choreDescription").value = chore.editChore.Description;
+      document.getElementById("choreOnSunday").checked = chore.editChore.OnSunday;
+      $("#choreOnMonday").prop("checked", chore.editChore.OnMonday);
+      $("#choreOnTuesday").prop("checked", chore.editChore.OnTuesday);
+      $("#choreOnWednesday").prop("checked", chore.editChore.OnWednesday);
+      $("#choreOnThursday").prop("checked", chore.editChore.OnThursday);
+      $("#choreOnFriday").prop("checked", chore.editChore.OnFriday);
+      $("#choreOnSaturday").prop("checked", chore.editChore.OnSaturday);
+      chore.showModal($("#addEditChoreModal"));
+    });
   }
   
   chore.renderChoresLoading = function (isLoading) {
@@ -83,14 +216,15 @@ var chore = chore || {};
     chore.fetchThisWeekChores();
   }  
   chore.ajaxDelay = 2000;
+  chore.mockAjax = false; // WEBAPI-NOTWORKING - set to true to use mock ajax implementation
   chore.startApp();
   
-  chore.drawSlowFrames = function () {
+  /*chore.drawSlowFrames = function () {
     chore.renderUsers();
     chore.renderChores();
     chore.renderThisWeekChores();
     window.requestAnimationFrame(chore.drawSlowFrames);        
-  }
+  }*/
    
-  window.requestAnimationFrame(chore.drawSlowFrames);  
+  //window.requestAnimationFrame(chore.drawSlowFrames);  
 }());
