@@ -16,6 +16,29 @@ var chore = chore || {};
     $(".tri-modal-overlay").remove();
     $elem.removeClass("tri-modal-open");
   }
+
+  chore.showModalWindow = function (config) {
+    $("<div class='tri-modal-overlay'></div>").appendTo("body");
+    config.$element.addClass("tri-modal-open");
+    var hide = function () {
+      $(".tri-modal-overlay").remove();
+      config.$element.removeClass("tri-modal-open");
+    }
+    config.$element.off("click.triModalOk").on("click.triModalOk", ".okButton", function (e) {
+      var okCallback = config.okCallback || function () { };
+      var result = okCallback();
+      if (!result) {
+        hide();
+      }
+    });
+    config.$element.off("click.triModalCancel").on("click.triModalCancel", ".cancelButton", function (e) {
+      var cancelCallback = config.cancelCallback || function () { };
+      var result = cancelCallback();
+      if (!result) {
+        hide();
+      }
+    });
+  }
   
   var renderLoop = function ($loopContainer, parentViewModel) {
     var $template = $loopContainer.data("triLoopTemplate");
@@ -75,7 +98,15 @@ var chore = chore || {};
       if ($curElement.attr("tri-attr")) {
         var strConfig = $curElement.attr("tri-attr");
         var config = JSON.parse(strConfig);
-        $curElement.attr(config.prop, viewModel[config.data]);
+        var configArray = [];
+        if (config.length) {
+          configArray = config;
+        } else {
+          configArray = [config];
+        }
+        configArray.forEach(function (config) {
+          $curElement.attr(config.prop, viewModel[config.data]);
+        });
       }
       if ($curElement.attr("tri-click")) {
         var funcName = $curElement.attr("tri-click");
