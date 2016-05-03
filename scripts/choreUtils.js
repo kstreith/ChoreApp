@@ -81,7 +81,7 @@ var chore = chore || {};
         var funcName = $curElement.attr("tri-click");
         var func = viewModel[funcName];
         if (func && func.apply) {
-          $curElement.on("click", function () {
+          $curElement.off("click.tri").on("click.tri", function () {
             func.call(viewModel, viewModel);
           });
         }
