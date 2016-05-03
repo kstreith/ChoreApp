@@ -2,6 +2,8 @@
 (function () {
   document.querySelector("#addChore").addEventListener("click", function (e) {
     chore.choreAddEditType = 'add';
+    chore.executeTemplate($("#addEditChoreModal"), chore);
+    $("#choreChild").val(String(chore.users[0].Id));
     chore.showModal($("#addEditChoreModal"));
   });
   $("#confirmChoreDeletion").on("click", function () {
@@ -23,8 +25,9 @@
     var onThursday = $("#choreOnThursday").is(":checked");
     var onFriday = $("#choreOnFriday").is(":checked");
     var onSaturday = $("#choreOnSaturday").is(":checked");
+    var childId = parseInt($("#choreChild").val(), 10);
     if (chore.choreAddEditType === 'add') {
-      var obj = { Id: -1, ChildId: 1, Description: description, OnSunday: onSunday, OnMonday: onMonday, OnTuesday: onTuesday, OnWednesday: onWednesday, OnThursday: onThursday, OnFriday: onFriday, OnSaturday: onSaturday };
+      var obj = { Id: -1, ChildId: childId, Description: description, OnSunday: onSunday, OnMonday: onMonday, OnTuesday: onTuesday, OnWednesday: onWednesday, OnThursday: onThursday, OnFriday: onFriday, OnSaturday: onSaturday };
       var data = JSON.stringify(obj);
       $.ajax({ url: '/api/chores', type: 'POST', data: data, contentType: 'application/json' }).done(function () {
         chore.fetchChores();
@@ -32,7 +35,7 @@
       chore.hideModal($("#addEditChoreModal"));
     } else if (chore.choreAddEditType === 'edit') {
       var id = chore.editChore.Id;
-      var obj = { Id: id, ChildId: 1, Description: description, OnSunday: onSunday, OnMonday: onMonday, OnTuesday: onTuesday, OnWednesday: onWednesday, OnThursday: onThursday, OnFriday: onFriday, OnSaturday: onSaturday };
+      var obj = { Id: id, ChildId: childId, Description: description, OnSunday: onSunday, OnMonday: onMonday, OnTuesday: onTuesday, OnWednesday: onWednesday, OnThursday: onThursday, OnFriday: onFriday, OnSaturday: onSaturday };
       var data = JSON.stringify(obj);
       $.ajax({ url: '/api/chores/' + window.encodeURIComponent(id), type: 'PUT', data: data, contentType: 'application/json' }).done(function () {
         chore.fetchChores();
@@ -77,6 +80,8 @@
       $("#choreOnThursday").prop("checked", chore.editChore.OnThursday);
       $("#choreOnFriday").prop("checked", chore.editChore.OnFriday);
       $("#choreOnSaturday").prop("checked", chore.editChore.OnSaturday);
+      chore.executeTemplate($("#addEditChoreModal"), chore);
+      $("#choreChild").val(String(chore.editChore.ChildId));
       chore.showModal($("#addEditChoreModal"));
     });
   }
