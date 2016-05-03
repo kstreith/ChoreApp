@@ -1,0 +1,88 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Event Test</title>
+    <style>
+      body { font-size: 20px; }
+      input { font-size: 20px; }
+      #parent { border: 2px solid black; width: 400px; padding: 10px }
+      #topChild { border: 2px solid black; background-color: lightblue; padding: 10px; margin: 10px; }
+      #bottomChild { border: 2px solid black; background-color: tan; padding: 10px; margin: 10px; }
+      pre { white-space: pre-line; }
+      #container { border: 2px solid black; background-color: tan; padding: 10px }      
+      #footer { position: fixed; bottom: 10px; right: 10px; border: 2px solid black; background-color: lightblue; padding: 10px; margin: 10px; }      
+    </style>
+  </head>
+  <body>
+    <h4>Event handling and event bubbling</h4>
+    <div id="parent">
+      #parent
+      <div id="topChild">#topChild</div>
+      <div id="bottomChild">#bottomChild</div>
+    </div>
+    <ol>
+      <li>Add the following to the developer console:
+      <pre>
+    document.getElementById("topChild").addEventListener("mousemove", function () { console.log('moved over topChild'); });
+    document.getElementById("bottomChild").addEventListener("mousemove", function () { console.log('moved over bottomChild'); });       
+      </pre>
+Notice how as you move your mouse over the appropriate box you see messages printed to the developer console.      
+      </li>
+      <br/>
+      <li>Events also bubble up to the parent and can be handled at the parent level, add this to the developer console:
+      <pre>
+    document.getElementById("parent").addEventListener("mousemove", function () { console.log('moved over parent'); });      
+      </pre>
+Notice how when you mouse over topChild or bottomChild, you now get two messages, one for the child and one for the parent in that order. That's because the event is emitted for the element that the mouse was over (e.g. child) and then is bubbled to parent elements in the DOM (Document Object Model). If you only mouse over the parent, you will only see a message for the parent in the developer console.      
+      </li>
+      <br/>      
+      <li>Reload the page. With event bubbling, you can still tell what element originated the event using the .target property of the event object passed to your callback function. Add this to the developer console:      
+      <pre>
+document.getElementById("parent").addEventListener("mousemove", function (e) { if (e.target == this ) { console.log('moved over parent'); } else { console.log('moved over ' + e.target.id ); } });      
+      </pre>
+      Mouse over #topChild, #bottomChild and #parent and see the message change. Now, we have 1 registered callback instead of 3.
+      </li>
+      <br/>
+      <li>Reload the page. Event listeners can stop bubbling using .stopPropagation of the event object passed to your callback function. Add this to the developer console:
+      <pre>
+document.getElementById("parent").addEventListener("click", function (e) { console.log('clicked on ' + e.target.id); } );
+      </pre>
+      Try clicking on #topChild, #bottomChild and #parent. Now add this to the developer console:
+      <pre>
+document.getElementById("topChild").addEventListener("click", function (e) { e.stopPropagation(); } );
+      </pre>
+      Now if you click on #topChild you no longer see the message, that's because the new event listener stopped bubbling of the click event when you click on #topChild. Using .stopPropagation can be considered a bad practice, much like !important or goto statements can be considered bad practice. But sometimes you need it to solve a problem when multiple libraries interact with each other.
+    </ol>
+    <h4>Bubbling and CSS layouts can still be confusing</h4>
+    <div id="container">
+      #container
+      <div id="footer">#footer</div>
+    </div>
+    <ol>
+      <li>Add the following to the developer console:
+      <pre>
+    document.getElementById("container").addEventListener("mousemove", function (e) { console.log('moved over container, source of event was ' + e.target.id); });
+      </pre>
+Notice how as you move your mouse over the #container, you see a message in the developer console. Also notice how if you move your mouse over the #footer, you also see a message in the developer console. The layout for #footer puts it outside the box of #container, but it (#footer) is still a child element of #container, so the event still bubbles from #footer up to the registered event listener on #container, because it follows DOM (Document Object Model) parent relationships.
+      </li>
+    </ol>
+    <h4>Preventing browser defaults for events</h4>
+    <div>
+      <div><label>First Name: </label> <input type="text" /></div>
+      <div><label>Last Name: </label> <input type="text" /></div>
+    </div>
+    <ol>
+      <li>Copy and paste between the two text boxes. We are now going to prevent paste using the .preventDefault() method of the event object passed into your callback. We are going to prevent paste for the entire page as well by attaching to "body" and using event bubbling.
+      <pre>
+    document.body.addEventListener("paste", function (e) { console.log('blocked paste'); e.preventDefault(); });
+      </pre>
+      The .preventDefault(); function tells the browser not to perform it's default action for the given event if it has one.
+      </li>
+    </ol>
+
+  </body>
+</html>
