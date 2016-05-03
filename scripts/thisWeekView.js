@@ -7,11 +7,28 @@
       chore.thisWeekChores = data;
       chore.thisWeekChores.map(function (item, idx) {
         item._Id = idx;
+        item.toggle = function (clickedChore) {
+          chore.toggle(clickedChore);
+        }
       });
       chore.renderThisWeekChoresLoading(false);
       chore.renderThisWeekChores();
     });
   }
+  /*
+  chore.toggle = function (clickedChore) {
+    var obj = { ChoreId: clickedChore.ChoreId, ChildId: clickedChore.ChildId, Day: clickedChore.Day };
+    var data = JSON.stringify(obj);
+    if (clickedChore.Completed) {
+      $.ajax({ url: '/api/chores/clear', type: 'POST', data: data, contentType: 'application/json' }).done(function () {
+        chore.fetchThisWeekChores();
+      });
+    } else {
+      $.ajax({ url: '/api/chores/complete', type: 'POST', data: data, contentType: 'application/json' }).done(function () {
+        chore.fetchThisWeekChores();
+      });
+    }
+  }*/
   chore.renderThisWeekChores = function () {
     chore.executeTemplate($("#thisWeekTable"), chore);
     $(".completedColumn").on("click", function (e) {

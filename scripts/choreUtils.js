@@ -77,6 +77,15 @@ var chore = chore || {};
         var config = JSON.parse(strConfig);
         $curElement.attr(config.prop, viewModel[config.data]);
       }
+      if ($curElement.attr("tri-click")) {
+        var funcName = $curElement.attr("tri-click");
+        var func = viewModel[funcName];
+        if (func && func.apply) {
+          $curElement.on("click", function () {
+            func.call(viewModel, viewModel);
+          });
+        }
+      }
     });
   }
   
