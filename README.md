@@ -11,4 +11,7 @@ You can download code for both the beginning and end of a given session. See the
   * End - This code uses the template engine to render all three grids. It also uses requestAnimationFrame to redraw all three grids every time the browser redraws a frame. If you want to see the desired end result as you write code from the starter template, this will show you the desired result.
     * Either git checkout session1-end
     * Or download the session1-end release zip at https://github.com/kstreith/ChoreApp/releases/tag/session1-end
-2. Session 2 - Forthcoming, End of first week of May 2016
+2. [Session 2](http://www.meetup.com/TRINUG/events/230569765/) - This session requires VS 2013 or VS 2015.
+    * Start
+      * Either git checkout session2-start
+      * Or download the session2-start release zip at https://github.com/kstreith/ChoreApp/releases/tag/session2-start
