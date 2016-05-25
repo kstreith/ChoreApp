@@ -28,33 +28,34 @@
         <a class="navbar-brand" href="#">Under My Thumb</a>
       </div>
     </nav>
+
+    
     
     <div class="row">
       <div class="col-xs-10 col-xs-offset-1">
-        <div class="panel panel-info">
-          <div class="panel-heading">Children <span id="addUser" class="glyphicon glyphicon-plus green pull-right"></span></div>
+        <div class="panel panel-info" id="userPanel">
+          <div class="panel-heading">Children <span class="glyphicon glyphicon-plus green pull-right"></span></div>
           <div class="panel-body">
             Manage list of children with chores.
           </div>
           <div class="table-responsive">
-            
-              <div id="confirmDeleteUserModal" class="tri-modal-dialog" >
-                <div class="tri-modal-body">
-                  Are you sure, you want to delete?
-                </div>
-                <div class="tri-modal-buttons">
-                  <button id="confirmUserDeletion" class="btn okButton">Ok</button>
-                  <button id="cancelUserDeletion" class="btn cancelButton">Cancel</button>
-                </div>
+            <div tri-modal="showDeleteModal" class="tri-modal-dialog">
+              <div class="tri-modal-body">
+                Are you sure, you want to delete?
               </div>
-           
+              <div class="tri-modal-buttons">
+                <button id="confirmUserDeletion" class="btn" tri-click="deleteModalOkClick">Ok</button>
+                <button id="cancelUserDeletion" class="btn" tri-click="deleteModalCancelClick">Cancel</button>
+              </div>
+            </div>
+           <!--
             <div id="addEditUserModal" class="tri-modal-dialog">
               <div class="tri-modal-body">
-                <form class="form-horizontal">
+                <form class="form-horizontal" id="addEditUserForm">
                   <div class="form-group">
                     <label for="userName" class="control-label col-sm-2">Name</label>
                     <div class="col-sm-10">
-                      <input type="text" class="form-control" id="userName" />
+                      <input type="text" class="form-control" id="userName" tri-value="userName" />
                     </div>
                   </div>
                 </form>
@@ -64,7 +65,8 @@
                 <button id="addEditUserCancel" class="btn cancelButton">Cancel</button>
               </div>
             </div>
-            <table id="userTable" class="table table-bordered table-striped">
+              -->
+            <table tri-show="showGrid" class="table table-bordered table-striped">
               <thead>
                 <tr><th>Name</th><th class="actions">Actions</th></tr>
               </thead>
@@ -73,12 +75,12 @@
                   <td tri-text="Name"></td>
                   <td>
                     <span tri-attr='{ "prop": "data-id", "data": "Id"}' class="glyphicon glyphicon-pencil green editUser"></span>
-                    <span tri-attr='{ "prop": "data-id", "data": "Id"}' class="glyphicon glyphicon-remove red deleteUser"></span>
+                    <span tri-click="deleteUserClick" class="glyphicon glyphicon-remove red deleteUser"></span>
                   </td>
                 </tr>
-              </tbody>    
+              </tbody>
             </table>
-            <div id="userTableSpinner" class="spinner"></div>            
+            <div tri-show="showSpinner" class="spinner"></div>            
           </div>
         </div>      
       </div>
@@ -242,9 +244,9 @@
                 <tr tri-class='{ "prop": "Overdue", "className": "danger"}'>
                   <td tri-text="Description"></td>
                   <td tri-text="DayFormatted">Monday</td>
-                  <td tri-attr='[{ "prop": "data-id", "data": "_Id"}, {"prop": "data-completed", "data": "Completed"}]'><span tri-show="Completed" class="glyphicon glyphicon-ok green"></span></td>
+                  <!-- <td tri-attr='[{ "prop": "data-id", "data": "_Id"}, {"prop": "data-completed", "data": "Completed"}]'><span tri-show="Completed" class="glyphicon glyphicon-ok green"></span></td>-->
                   <!-- EX-3 Uncomment, comment out line above -->
-                  <!-- <td tri-click="toggle"><span tri-show="Completed" class="glyphicon glyphicon-ok green"></span></td> -->
+                  <td tri-click="toggle"><span tri-show="Completed" class="glyphicon glyphicon-ok green"></span></td>
                   <!-- EX-3 END -->
                 </tr>
               </tbody>                    

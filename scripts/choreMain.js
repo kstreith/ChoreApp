@@ -1,8 +1,11 @@
 var chore = chore || {};
 (function () {       
   chore.startApp = function () {
-    chore.initUsers();
-    chore.fetchUsers();
+    //chore.initUsers();
+    //chore.fetchUsers();
+    chore.userViewModel = new chore.UserViewModel();
+    chore.userViewModel.bindToDom($("#userPanel"));
+    chore.userViewModel.fetch();
     chore.initChores();
     chore.fetchChores();
     chore.initThisWeekChores();

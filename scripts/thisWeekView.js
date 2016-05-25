@@ -1,4 +1,5 @@
 ﻿var chore = chore || {};
+
 (function () {
   chore.thisWeekChores = [];
   chore.initThisWeekChores = function () {
@@ -36,13 +37,21 @@
         chore.fetchThisWeekChores();
       });
     });
+    $("td[data-completed='true']").on("click", function (e) {
+      var idx = parseInt($(e.currentTarget).attr("data-id"), 10);
+      var thisChore = chore.thisWeekChores[idx];
+      var obj = { ChoreId: thisChore.ChoreId, ChildId: thisChore.ChildId, Day: thisChore.Day };
+      $.ajax({ url: '/api/chores/clear', type: 'POST', data: obj }).done(function () {
+        chore.fetchThisWeekChores();
+      });
+    });
     //TODO: Add support for clearing completion
     //Attach click event to "td[data-completed='true']"
     //Use '/api/chores/clear', has same arguments as '/api/chores/complete'
   }
 
   //EX-2: Use event bubbling and event delegation to only attach a single event handler to <table> tag instead
-  /*
+  
   chore.renderThisWeekChores = function () {
     chore.executeTemplate($("#thisWeekTable"), chore);
   }
@@ -59,10 +68,10 @@
     //Attach click event to "td[data-completed='true']"
     //Use '/api/chores/clear', has same arguments as '/api/chores/complete'
   }
-  */
+  
 
   //EX-3: Use tri-click which uses a js closure to avoid need to populate DOM element with data-Id attribute, still attaches event handler per row
-  /*
+  
   chore.initThisWeekChores = function () {
   }
   chore.fetchThisWeekChores = function () {
@@ -90,6 +99,6 @@
       chore.fetchThisWeekChores();
     });
   }
-  */
+  
 
 }());
