@@ -1,15 +1,13 @@
 var chore = chore || {};
 (function () {       
   chore.startApp = function () {
-    //chore.initUsers();
-    //chore.fetchUsers();
-    chore.userViewModel = new chore.UserViewModel();
-    chore.userViewModel.bindToDom($("#userPanel"));
-    chore.userViewModel.fetch();
-    chore.initChores();
-    chore.fetchChores();
-    chore.initThisWeekChores();
-    chore.fetchThisWeekChores();
+    var userViewModel = new chore.UserViewModel({ selector: "#userPanel", usersUpdatedCallback: usersUpdated });
+    var choreViewModel = new chore.ChoreViewModel({ users: [] });
+    var thisViewModel = new chore.ThisWeekViewModel({ users: [] });
+    function usersUpdated(users) {
+      choreViewModel.setUsers(users);
+      thisViewModel.setUsers(users);
+    }
   }  
   chore.ajaxDelay = 2000;
   chore.mockAjax = false; // WEBAPI-NOTWORKING - set to true to use mock ajax implementation

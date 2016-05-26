@@ -1,9 +1,26 @@
 ﻿var chore = chore || {};
 (function () {
-  chore.chores = [];
-  chore.addChoreClick = function () {
-    chore.executeTemplate($("#addEditChoreModal"), chore);
-    $("#choreChild").val(String(chore.users[0].Id));
+  chore.ChoreViewModel = function (config) {
+    var self = this;
+    self.chores = [];
+    self.users = config.users || [];
+    chore.executeTemplate($("#chorePanelHeader"), self);
+    self.fetch();
+  }
+  chore.ChoreViewModel.prototype = Object.create(Object.prototype);
+  chore.ChoreViewModel.constructor = chore.ChoreViewModel;
+  chore.ChoreViewModel.prototype.setUsers = function (users) {
+    var self = this;
+    self.users = users;
+  }
+  chore.ChoreViewModel.prototype.addChoreClick = function () {
+    var self = this;
+    chore.executeTemplate($("#addEditChoreModal"), self);
+    var userId = null;
+    if (self.users.length) {
+      userId = self.users[0].Id;
+    }
+    $("#choreChild").val(String(userId));
     chore.showModalWindow({
       $element: $("#addEditChoreModal"),
       okCallback: function () {
@@ -19,12 +36,13 @@
         var obj = { Id: -1, ChildId: childId, Description: description, OnSunday: onSunday, OnMonday: onMonday, OnTuesday: onTuesday, OnWednesday: onWednesday, OnThursday: onThursday, OnFriday: onFriday, OnSaturday: onSaturday };
         var data = JSON.stringify(obj);
         $.ajax({ url: '/api/chores', type: 'POST', data: data, contentType: 'application/json' }).done(function () {
-          chore.fetchChores();
+          self.fetch();
         });
       }
     });
   }
-  chore.editChoreClick = function (choreClicked) {
+  chore.ChoreViewModel.prototype.editChoreClick = function (choreClicked) {
+    var self = this;
     document.getElementById("choreDescription").value = choreClicked.Description;
     document.getElementById("choreOnSunday").checked = choreClicked.OnSunday;
     $("#choreOnMonday").prop("checked", choreClicked.OnMonday);
@@ -33,7 +51,7 @@
     $("#choreOnThursday").prop("checked", choreClicked.OnThursday);
     $("#choreOnFriday").prop("checked", choreClicked.OnFriday);
     $("#choreOnSaturday").prop("checked", choreClicked.OnSaturday);
-    chore.executeTemplate($("#addEditChoreModal"), chore);
+    chore.executeTemplate($("#addEditChoreModal"), self);
     $("#choreChild").val(String(choreClicked.ChildId));
     chore.showModalWindow({
       $element: $("#addEditChoreModal"),
@@ -51,45 +69,45 @@
         var obj = { Id: id, ChildId: childId, Description: description, OnSunday: onSunday, OnMonday: onMonday, OnTuesday: onTuesday, OnWednesday: onWednesday, OnThursday: onThursday, OnFriday: onFriday, OnSaturday: onSaturday };
         var data = JSON.stringify(obj);
         $.ajax({ url: '/api/chores/' + window.encodeURIComponent(id), type: 'PUT', data: data, contentType: 'application/json' }).done(function () {
-          chore.fetchChores();
+          self.fetch();
         });
       }
     });
   }
-  chore.deleteChoreClick = function (choreClicked) {
+  chore.ChoreViewModel.prototype.deleteChoreClick = function (choreClicked) {
+    var self = this;
     chore.showModalWindow({
       $element: $("#confirmDeleteChoreModal"),
       okCallback: function () {
         $.ajax({ url: '/api/chores/' + window.encodeURIComponent(choreClicked.Id), type: 'DELETE' }).done(function () {
-          chore.fetchChores();
+          self.fetch();
         });
       }
     });
   }
-  chore.initChores = function () {
-    chore.executeTemplate($("#chorePanelHeader"), chore);
-  }
-  chore.fetchChores = function () {
-    chore.renderChoresLoading(true);
+  chore.ChoreViewModel.prototype.fetch = function () {
+    var self = this;
+    self.renderLoading(true);
     return $.ajax({ url: '/api/chores' }).done(function (data) {
       data.map(function (item) {
         item.editChoreClick = function (choreClicked) {
-          chore.editChoreClick(choreClicked);
+          self.editChoreClick(choreClicked);
         }
         item.deleteChoreClick = function (choreClicked) {
-          chore.deleteChoreClick(choreClicked);
+          self.deleteChoreClick(choreClicked);
         }
       });
-      chore.chores = data;
-      chore.renderChoresLoading(false);
-      chore.renderChores();
+      self.chores = data;
+      self.renderLoading(false);
+      self.render();
     });
   }
-  chore.renderChores = function () {
-    chore.executeTemplate($("#choreTable"), chore);
+  chore.ChoreViewModel.prototype.render = function () {
+    var self = this;
+    chore.executeTemplate($("#choreTable"), self);
   }
-
-  chore.renderChoresLoading = function (isLoading) {
+  chore.ChoreViewModel.prototype.renderLoading = function (isLoading) {
+    var self = this;
     if (isLoading) {
       $("#choreTable").hide();
       $("#choreTableSpinner").show();
