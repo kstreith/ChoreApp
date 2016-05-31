@@ -35,7 +35,7 @@
         var childId = parseInt($("#choreChild").val(), 10);
         var obj = { Id: -1, ChildId: childId, Description: description, OnSunday: onSunday, OnMonday: onMonday, OnTuesday: onTuesday, OnWednesday: onWednesday, OnThursday: onThursday, OnFriday: onFriday, OnSaturday: onSaturday };
         var data = JSON.stringify(obj);
-        $.ajax({ url: '/api/chores', type: 'POST', data: data, contentType: 'application/json' }).done(function () {
+        chore.ajax({ url: '/api/chores', type: 'POST', data: data, contentType: 'application/json' }).done(function () {
           self.fetch();
         });
       }
@@ -68,7 +68,7 @@
         var id = choreClicked.Id;
         var obj = { Id: id, ChildId: childId, Description: description, OnSunday: onSunday, OnMonday: onMonday, OnTuesday: onTuesday, OnWednesday: onWednesday, OnThursday: onThursday, OnFriday: onFriday, OnSaturday: onSaturday };
         var data = JSON.stringify(obj);
-        $.ajax({ url: '/api/chores/' + window.encodeURIComponent(id), type: 'PUT', data: data, contentType: 'application/json' }).done(function () {
+        chore.ajax({ url: '/api/chores/' + window.encodeURIComponent(id), type: 'PUT', data: data, contentType: 'application/json' }).done(function () {
           self.fetch();
         });
       }
@@ -79,7 +79,7 @@
     chore.showModalWindow({
       $element: $("#confirmDeleteChoreModal"),
       okCallback: function () {
-        $.ajax({ url: '/api/chores/' + window.encodeURIComponent(choreClicked.Id), type: 'DELETE' }).done(function () {
+        chore.ajax({ url: '/api/chores/' + window.encodeURIComponent(choreClicked.Id), type: 'DELETE' }).done(function () {
           self.fetch();
         });
       }
@@ -88,7 +88,7 @@
   chore.ChoreViewModel.prototype.fetch = function () {
     var self = this;
     self.renderLoading(true);
-    return $.ajax({ url: '/api/chores' }).done(function (data) {
+    return chore.ajax({ url: '/api/chores' }).done(function (data) {
       data.map(function (item) {
         item.editChoreClick = function (choreClicked) {
           self.editChoreClick(choreClicked);

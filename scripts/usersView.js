@@ -11,9 +11,17 @@
     self.addProperty('addEditUserNameValue', "");
     self.addEditMode = 'add';
     self.editRecordId = null;
-    self.bindToDom($(config.selector));
+    chore.executeTemplate($(config.selector), self); //set-up two way data-binding to dom
     self.usersUpdatedCallback = config.usersUpdatedCallback;
     self.fetch();
+
+    self.subscribe('addEditUserNameValue', function () {
+      var value = self.getPropertyValue('addEditUserNameValue');
+      //value = self.addEditUserNameValue;
+      if (value === 'easteregg') {
+        alert('you found the easter egg!');
+      }
+    });
   }
   chore.UserViewModel.prototype = Object.create(chore.TwoWayBindingModel.prototype);
   chore.UserViewModel.prototype.constructor = chore.UserViewModel;
@@ -24,8 +32,8 @@
   chore.UserViewModel.prototype.fetch = function () {
     var self = this;
     self.showSpinner = true;
-    self.showGrid = false;
-    return  $.ajax({ url: '/api/users' }).done(function (data) {
+    self.setPropertyValue('showGrid', false);
+    return chore.ajax({ url: '/api/users' }).done(function (data) {
       data.forEach(function (item) {
         item.deleteUserClick = function () {
           self.deleteUserClick(item);
@@ -35,7 +43,7 @@
         }
       });
       self.users = data;
-      self.showSpinner = false;
+      self.setPropertyValue('showSpinner', false);
       self.showGrid = true;
       if (self.usersUpdatedCallback) {
         self.usersUpdatedCallback(self.users);
@@ -60,14 +68,14 @@
     if (self.addEditMode === 'add') {
       var name = self.addEditUserNameValue;
       var obj = { Id: -1, Name: name };
-      $.ajax({ url: '/api/users', type: 'POST', data: JSON.stringify(obj), contentType: 'application/json' }).done(function () {
+      chore.ajax({ url: '/api/users', type: 'POST', data: JSON.stringify(obj), contentType: 'application/json' }).done(function () {
         self.fetch();
       });
     } else if (self.addEditMode === 'edit') {
       var name = self.addEditUserNameValue;
       var id = self.editRecordId;
       var obj = { Id: id, Name: name };
-      $.ajax({ url: '/api/users/' + window.encodeURIComponent(id), type: 'PUT', data: JSON.stringify(obj), contentType: 'application/json' }).done(function () {
+      chore.ajax({ url: '/api/users/' + window.encodeURIComponent(id), type: 'PUT', data: JSON.stringify(obj), contentType: 'application/json' }).done(function () {
         self.fetch();
       });
     }
@@ -84,7 +92,7 @@
   }
   chore.UserViewModel.prototype.deleteModalOkClick = function () {
     var self = this;
-    $.ajax({ url: '/api/users/' + window.encodeURIComponent(self.deleteRow.Id), type: 'DELETE' }).done(function () {
+    chore.ajax({ url: '/api/users/' + window.encodeURIComponent(self.deleteRow.Id), type: 'DELETE' }).done(function () {
       self.fetch();
     });
     self.showDeleteModal = false;

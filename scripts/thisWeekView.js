@@ -5,6 +5,7 @@
     var self = this;
     self.thisWeekChores = [];
     self.users = config.users || [];
+    self.selectedUserId = 1;
     self.fetch();
   }
   chore.ThisWeekViewModel.prototype = Object.create(Object.prototype);
@@ -12,6 +13,7 @@
   chore.ThisWeekViewModel.prototype.setUsers = function (users) {
     var self = this;
     self.users = users;
+    chore.executeTemplate($("#thisWeekUserSelection"), self);
   }
   chore.ThisWeekViewModel.prototype.renderLoading = function (isLoading) {
     var self = this;
@@ -30,7 +32,7 @@
   chore.ThisWeekViewModel.prototype.fetch = function () {
     var self = this;
     self.renderLoading(true);
-    return $.ajax({ url: '/api/thisWeek/1' }).done(function (data) {
+    return chore.ajax({ triDelay: 10, url: '/api/thisWeek/' + window.encodeURIComponent(self.selectedUserId) }).done(function (data) {
       self.thisWeekChores = data;
       self.thisWeekChores.map(function (item, idx) {
         item.toggle = function (clickedChore) {
@@ -50,7 +52,7 @@
     } else {
       url = '/api/chores/complete';
     }
-    $.ajax({ url: url, type: 'POST', data: obj }).done(function () {
+    chore.ajax({ url: url, type: 'POST', data: obj }).done(function () {
       self.fetch();
     });
   }

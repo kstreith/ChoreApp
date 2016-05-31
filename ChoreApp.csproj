@@ -87,6 +87,8 @@
     <Compile Include="Controllers\ChoresController.cs" />
     <Compile Include="Controllers\ThisWeekController.cs" />
     <Compile Include="Controllers\UsersController.cs" />
+    <Compile Include="Filters\MakeSlowFilterAttribute.cs" />
+    <Compile Include="Filters\FakeResponseFilterAttribute.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -110,8 +112,8 @@
     <Content Include="scripts\choresView.js" />
     <Content Include="scripts\choreUtils.js" />
     <Content Include="scripts\jquery-2.2.2.min.js" />
-    <Content Include="scripts\mockServerData.js" />
     <Content Include="scripts\thisWeekView.js" />
+    <Content Include="scripts\twoWayDataBinding.js" />
     <Content Include="scripts\usersView.js" />
     <Content Include="SessionReadme.txt" />
     <Content Include="Web.config" />
