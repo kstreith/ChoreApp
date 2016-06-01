@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
 
@@ -46,6 +47,15 @@ namespace ChoreApp.Controllers
         public void Delete(int id)
         {
             Repo.DeleteUser(id);
+        }
+
+        [Route("api/test")]
+        [HttpGet]
+        public HttpResponseMessage Test()
+        {
+            var resp =  new HttpResponseMessage(HttpStatusCode.OK);
+            resp.Content = new StringContent("Api Response");
+            return resp;
         }
     }
 }

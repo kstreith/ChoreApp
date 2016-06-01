@@ -109,6 +109,7 @@
     <Content Include="images\spinner.gif" />
     <Content Include="index.html" />
     <Content Include="scripts\choreMain.js" />
+    <Content Include="scripts\choreNav.js" />
     <Content Include="scripts\choresView.js" />
     <Content Include="scripts\choreUtils.js" />
     <Content Include="scripts\jquery-2.2.2.min.js" />

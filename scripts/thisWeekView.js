@@ -32,7 +32,7 @@
   chore.ThisWeekViewModel.prototype.fetch = function () {
     var self = this;
     self.renderLoading(true);
-    return chore.ajax({ triDelay: 10, url: '/api/thisWeek/' + window.encodeURIComponent(self.selectedUserId) }).done(function (data) {
+    return chore.ajax({ url: '/api/thisWeek/' + window.encodeURIComponent(self.selectedUserId) }).done(function (data) {
       self.thisWeekChores = data;
       self.thisWeekChores.map(function (item, idx) {
         item.toggle = function (clickedChore) {

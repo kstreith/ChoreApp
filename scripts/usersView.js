@@ -92,10 +92,10 @@
   }
   chore.UserViewModel.prototype.deleteModalOkClick = function () {
     var self = this;
+    self.showDeleteModal = false;
     chore.ajax({ url: '/api/users/' + window.encodeURIComponent(self.deleteRow.Id), type: 'DELETE' }).done(function () {
       self.fetch();
     });
-    self.showDeleteModal = false;
   }
   chore.UserViewModel.prototype.deleteModalCancelClick = function () {
     var self = this;

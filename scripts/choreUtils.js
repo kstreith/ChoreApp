@@ -1,5 +1,31 @@
 var chore = chore || {};
 (function () {
+  chore.ajax = function (ajaxSettings) {
+    var triDelay = ajaxSettings.triDelay; // || 5;
+    var triStatusCode = ajaxSettings.triStatusCode; // || 400;
+    ajaxSettings.headers = ajaxSettings.headers || {};
+    if (triDelay) {
+      ajaxSettings.headers["tri-delay"] = triDelay;
+    }
+    if (triStatusCode) {
+      ajaxSettings.headers["tri-statusCode"] = triStatusCode;
+    }
+    var response = $.ajax(ajaxSettings);
+    /*
+    response.fail(function (jqXHR, textStatus, errorThrown) {
+      //debugger;
+      if (textStatus === 'abort') {
+        return;
+      }
+      if (jqXHR.status !== 500) {
+        return;
+      }
+      chore.showErrorMessage('ajax failed');
+      //alert('ajax failed');
+    });*/
+    return response;
+  }
+
   chore.escapeHTML = function (string) {
     var div = document.createElement("div");
     div.appendChild(document.createTextNode(string));
@@ -40,14 +66,17 @@ var chore = chore || {};
     });
   }
 
-  chore.blockOperations = function () {
-    chore.showModal($("#waitModal"));
-    var obj = {
-      close: function () {
-        chore.hideModal($("#waitModal"));
-      }
+  chore.showErrorMessage = function (message) {
+    var $appErrorContainer = $(".appErrorContainer");
+    if (!$appErrorContainer.length) {
+      $appErrorContainer = $("<div class='appErrorContainer'>").appendTo("body");
     }
-    return obj;
+    var AUTO_HIDE_DELAY = 5 * 1000; //5 seconds
+    var $appError = $("<div class='appError'>").text(message);
+    $appErrorContainer.prepend($appError);
+    setTimeout(function () {
+      $appError.remove();
+    }, AUTO_HIDE_DELAY);
   }
   
   $.fn.walk = function(visit) {
