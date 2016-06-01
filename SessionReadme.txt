@@ -251,7 +251,7 @@ to deal with that. In deleteModalOkClick, add code to deal with an ajax failure
 and check the status code. If the .status is 409, let's use
 chore.showErrorMessage to display a better error message to the user. Something
 like, 'A user that has chores assigned cannot be deleted. Please delete all
-chore first.'
+chores first.'
 
 Remember to use the .fail method of $.Deferred to register a callback function.
 Remember the callback function is provided a first argument which is the jqXHR
