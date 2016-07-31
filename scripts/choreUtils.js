@@ -11,18 +11,15 @@ var chore = chore || {};
       ajaxSettings.headers["tri-statusCode"] = triStatusCode;
     }
     var response = $.ajax(ajaxSettings);
-    /*
     response.fail(function (jqXHR, textStatus, errorThrown) {
-      //debugger;
       if (textStatus === 'abort') {
         return;
       }
       if (jqXHR.status !== 500) {
         return;
       }
-      chore.showErrorMessage('ajax failed');
-      //alert('ajax failed');
-    });*/
+      chore.showErrorMessage('server failed, please retry.');
+    });
     return response;
   }
 
@@ -55,6 +52,8 @@ var chore = chore || {};
       var result = okCallback();
       if (!result) {
         hide();
+        var afterOkCallback = config.afterOkCallback || function () { };
+        afterOkCallback();
       }
     });
     config.$element.off("click.triModalCancel").on("click.triModalCancel", ".cancelButton", function (e) {
@@ -138,7 +137,6 @@ var chore = chore || {};
             viewModel[propName] = $curElement.val();
           });
         }
-        return false;
       }
       if ($curElement.attr("tri-text")) {
         var propName = $curElement.attr("tri-text");

@@ -85,6 +85,9 @@
       border-radius: 5px;
       width: 200px;
     }
+    .error {
+      color: red;
+    }
   </style>
 </head>
 <body>
@@ -130,6 +133,7 @@
                   <label for="userName" class="control-label col-sm-2">Name</label>
                   <div class="col-sm-10">
                     <input type="text" class="form-control" tri-value="addEditUserNameValue" />
+                    <span class="error" style="display:none" tri-show="showUserNameValidationError">User name is required and cannot be whitespace.</span>
                   </div>
                 </div>
               </form>
@@ -137,6 +141,12 @@
             <div class="tri-modal-buttons">
               <button id="addEditUserOk" class="btn" tri-click="addEditModalOkClick">Ok</button>
               <button id="addEditUserCancel" class="btn" tri-click="addEditModalCancelClick">Cancel</button>
+            </div>
+          </div>
+          <div tri-modal="showBlockUserModal" class="tri-modal-dialog">
+            <div class="tri-modal-body">
+              Completing operation...
+              <div class="spinner"></div>
             </div>
           </div>
 

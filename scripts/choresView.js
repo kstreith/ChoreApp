@@ -4,6 +4,7 @@
     var self = this;
     self.chores = [];
     self.users = config.users || [];
+    self.choresUpdatedCallback = config.choresUpdatedCallback;
     chore.executeTemplate($("#chorePanelHeader"), self);
     self.fetch();
   }
@@ -12,6 +13,7 @@
   chore.ChoreViewModel.prototype.setUsers = function (users) {
     var self = this;
     self.users = users;
+    self.fetch();
   }
   chore.ChoreViewModel.prototype.addChoreClick = function () {
     var self = this;
@@ -20,10 +22,24 @@
     if (self.users.length) {
       userId = self.users[0].Id;
     }
+    //zero-out form for an add, e.g. default to blank
     $("#choreChild").val(String(userId));
+    $("#choreChild").prop("disabled", "");
+    $("#choreDescription").val("");
+    $("#choreOnSunday").prop("checked", false);
+    $("#choreOnMonday").prop("checked", false);
+    $("#choreOnTuesday").prop("checked", false);
+    $("#choreOnWednesday").prop("checked", false);
+    $("#choreOnThursday").prop("checked", false);
+    $("#choreOnFriday").prop("checked", false);
+    $("#choreOnSaturday").prop("checked", false);
     chore.showModalWindow({
       $element: $("#addEditChoreModal"),
       okCallback: function () {
+        //validation goes here
+      },
+      afterOkCallback: function () {
+        chore.showModal($("#waitModal"));
         var description = $("#choreDescription").val();
         var onSunday = $("#choreOnSunday").prop("checked");
         var onMonday = $("#choreOnMonday").is(":checked");
@@ -37,6 +53,15 @@
         var data = JSON.stringify(obj);
         chore.ajax({ url: '/api/chores', type: 'POST', data: data, contentType: 'application/json' }).done(function () {
           self.fetch();
+          chore.hideModal($("#waitModal"));
+          if (self.choresUpdatedCallback) {
+            self.choresUpdatedCallback(childId);
+          }
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+          chore.hideModal($("#waitModal"));
+          if (String(jqXHR.status) == "400") {
+            chore.showErrorMessage('Invalid chore, please fix.');
+          }
         });
       }
     });
@@ -53,9 +78,14 @@
     $("#choreOnSaturday").prop("checked", choreClicked.OnSaturday);
     chore.executeTemplate($("#addEditChoreModal"), self);
     $("#choreChild").val(String(choreClicked.ChildId));
+    $("#choreChild").prop("disabled", "disabled");
     chore.showModalWindow({
       $element: $("#addEditChoreModal"),
       okCallback: function () {
+        //validation goes here
+      },
+      afterOkCallback: function () {
+        chore.showModal($("#waitModal"));
         var description = $("#choreDescription").val();
         var onSunday = $("#choreOnSunday").prop("checked");
         var onMonday = $("#choreOnMonday").is(":checked");
@@ -70,6 +100,15 @@
         var data = JSON.stringify(obj);
         chore.ajax({ url: '/api/chores/' + window.encodeURIComponent(id), type: 'PUT', data: data, contentType: 'application/json' }).done(function () {
           self.fetch();
+          chore.hideModal($("#waitModal"));
+          if (self.choresUpdatedCallback) {
+            self.choresUpdatedCallback(choreClicked.ChildId);
+          }
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+          chore.hideModal($("#waitModal"));
+          if (String(jqXHR.status) == "400") {
+            chore.showErrorMessage('Invalid chore, please fix.');
+          }
         });
       }
     });
@@ -78,9 +117,16 @@
     var self = this;
     chore.showModalWindow({
       $element: $("#confirmDeleteChoreModal"),
-      okCallback: function () {
+      afterOkCallback: function () {
+        chore.showModal($("#waitModal"));
         chore.ajax({ url: '/api/chores/' + window.encodeURIComponent(choreClicked.Id), type: 'DELETE' }).done(function () {
           self.fetch();
+          chore.hideModal($("#waitModal"));
+          if (self.choresUpdatedCallback) {
+            self.choresUpdatedCallback(choreClicked.ChildId);
+          }
+        }).fail(function () {
+          chore.hideModal($("#waitModal"));
         });
       }
     });

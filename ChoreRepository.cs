@@ -200,6 +200,10 @@ namespace ChoreApp
 
         public void AddUser(User value)
         {
+            if (String.IsNullOrWhiteSpace(value.Name))
+            {
+                throw new HttpResponseException(HttpStatusCode.BadRequest);
+            }
             if (!gl.TryEnterWriteLock(LOCK_TIMEOUT))
             {
                 throw new HttpResponseException(HttpStatusCode.RequestTimeout);
@@ -219,6 +223,10 @@ namespace ChoreApp
 
         public void EditUser(int id, User value)
         {
+            if (String.IsNullOrWhiteSpace(value.Name))
+            {
+                throw new HttpResponseException(HttpStatusCode.BadRequest);
+            }
             if (!gl.TryEnterUpgradeableReadLock(LOCK_TIMEOUT))
             {
                 throw new HttpResponseException(HttpStatusCode.RequestTimeout);
@@ -290,6 +298,20 @@ namespace ChoreApp
 
         public void AddChore(Chore value)
         {
+            if (String.IsNullOrWhiteSpace(value.Description))
+            {
+                throw new HttpResponseException(HttpStatusCode.BadRequest);
+            }
+            if (!value.OnSunday &&
+                !value.OnMonday &&
+                !value.OnTuesday &&
+                !value.OnWednesday &&
+                !value.OnThursday &&
+                !value.OnFriday &&
+                !value.OnSaturday)
+            {
+                throw new HttpResponseException(HttpStatusCode.BadRequest);
+            }
             if (!gl.TryEnterWriteLock(LOCK_TIMEOUT))
             {
                 throw new HttpResponseException(HttpStatusCode.RequestTimeout);
@@ -318,6 +340,20 @@ namespace ChoreApp
 
         public void EditChore(int id, Chore value)
         {
+            if (String.IsNullOrWhiteSpace(value.Description))
+            {
+                throw new HttpResponseException(HttpStatusCode.BadRequest);
+            }
+            if (!value.OnSunday &&
+                !value.OnMonday &&
+                !value.OnTuesday &&
+                !value.OnWednesday &&
+                !value.OnThursday &&
+                !value.OnFriday &&
+                !value.OnSaturday)
+            {
+                throw new HttpResponseException(HttpStatusCode.BadRequest);
+            }
             if (!gl.TryEnterUpgradeableReadLock(LOCK_TIMEOUT))
             {
                 throw new HttpResponseException(HttpStatusCode.RequestTimeout);
