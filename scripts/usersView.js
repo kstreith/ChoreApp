@@ -16,10 +16,10 @@
     chore.executeTemplate($(config.selector), self); //set-up two way data-binding to dom
     self.usersUpdatedCallback = config.usersUpdatedCallback;
     self.fetch();
-
+    /* //VALIDATION-2
     self.subscribe('addEditUserNameValue', function () {
       self.validateUserName();
-    });
+    }); */
   }
   chore.UserViewModel.prototype = Object.create(chore.TwoWayBindingModel.prototype);
   chore.UserViewModel.prototype.constructor = chore.UserViewModel;
@@ -37,10 +37,6 @@
       self.showUserNameValidationError = false;
     }
     return !self.showUserNameValidationError;
-  }
-  chore.UserViewModel.prototype.isInitialized = function () {
-    var self = this;
-    return self.initDfd;
   }
   chore.UserViewModel.prototype.fetch = function () {
     var self = this;
@@ -67,7 +63,7 @@
     var self = this;
     self.addEditMode = 'add';
     self.addEditUserNameValue = "";
-    //self.showUserNameValidationError = false;
+    //self.showUserNameValidationError = false; //VALIDATION-3
     self.showAddEditModal = true;
   }
   chore.UserViewModel.prototype.editUserClick = function (rowData) {
@@ -79,11 +75,11 @@
   }
   chore.UserViewModel.prototype.addEditModalOkClick = function () {
     var self = this;
-    //self.validate();
-    if (self.showUserNameValidationError) {
+    /* //VALIDATION-1    
+    if (!self.validate()) {
       //did not validate, so prevent add/edit from working
       return;
-    }
+    }*/
     self.showAddEditModal = false;
     self.showBlockUserModal = true;
     if (self.addEditMode === 'add') {

@@ -227,14 +227,18 @@
         <div class="form-group">
           <label for="choreDescription" class="control-label col-sm-2">Description</label>
           <div class="col-sm-10">
-            <input type="text" class="form-control" id="choreDescription" />
+            <input type="text" val-required="true" val-nowhitespace="true" class="form-control" id="choreDescription" />
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="atleastonemsg col-sm-offset-2" data-for="day">
           </div>
         </div>
         <div class="form-group">
           <div class="col-sm-offset-2 col-sm-10">
             <div class="checkbox">
               <label>
-                <input type="checkbox" value="" id="choreOnSunday">
+                <input type="checkbox" value="" id="choreOnSunday" val-atleastone="day">
                 Sunday
               </label>
             </div>
@@ -244,7 +248,7 @@
           <div class="col-sm-offset-2 col-sm-10">
             <div class="checkbox">
               <label>
-                <input type="checkbox" value="" id="choreOnMonday">
+                <input type="checkbox" value="" id="choreOnMonday" val-atleastone="day">
                 Monday
               </label>
             </div>
@@ -254,7 +258,7 @@
           <div class="col-sm-offset-2 col-sm-10">
             <div class="checkbox">
               <label>
-                <input type="checkbox" value="" id="choreOnTuesday">
+                <input type="checkbox" value="" id="choreOnTuesday" val-atleastone="day">
                 Tuesday
               </label>
             </div>
@@ -264,7 +268,7 @@
           <div class="col-sm-offset-2 col-sm-10">
             <div class="checkbox">
               <label>
-                <input type="checkbox" value="" id="choreOnWednesday">
+                <input type="checkbox" value="" id="choreOnWednesday" val-atleastone="day">
                 Wednesday
               </label>
             </div>
@@ -274,7 +278,7 @@
           <div class="col-sm-offset-2 col-sm-10">
             <div class="checkbox">
               <label>
-                <input type="checkbox" value="" id="choreOnThursday">
+                <input type="checkbox" value="" id="choreOnThursday" val-atleastone="day">
                 Thursday
               </label>
             </div>
@@ -284,7 +288,7 @@
           <div class="col-sm-offset-2 col-sm-10">
             <div class="checkbox">
               <label>
-                <input type="checkbox" value="" id="choreOnFriday">
+                <input type="checkbox" value="" id="choreOnFriday" val-atleastone="day">
                 Friday
               </label>
             </div>
@@ -294,7 +298,7 @@
           <div class="col-sm-offset-2 col-sm-10">
             <div class="checkbox">
               <label>
-                <input type="checkbox" value="" id="choreOnSaturday">
+                <input type="checkbox" value="" id="choreOnSaturday" val-atleastone="day">
                 Saturday
               </label>
             </div>
@@ -358,6 +362,7 @@
   <script src="scripts/choresView.js"></script>
   <script src="scripts/thisWeekView.js"></script>
   <script src="scripts/choreNav.js"></script>
+  <script src="scripts/choreValidation.js"></script>
   <script src="scripts/choreMain.js"></script>
 </body>
 </html>

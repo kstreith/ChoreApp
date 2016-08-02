@@ -1,12 +1,16 @@
-Session 3
+Session 4
 ----------
 
 In this session, we will be working on:
 
-1) Separating application into view components that are independent
-2) Slow api back-end
-3) Api errors from back-end
-4) Two-way data binding
+1) Two-way data binding
+2) Fixes I made to address server slowness
+3) Fixes I made to address server failures
+4) Enabling child selection in assignment grid
+5) Connecting the chore and assignment grid
+6) Client-side validation using two-way binding framework
+7) Client-side validation independently of the framework
+8) Only showing assignments grid by default
 
 Starting application and back-end details
 ------------------------------------------
@@ -39,268 +43,7 @@ all associated chores before you can delete a user.
 week that you run the application will change with rows in the bottom grid
 are shown in red to indicate that a chore is overdue.
 
-1 - Separating into view components
------------------------------------
-In session 1 and 2, we simply had global variables and global functions
-to control the grids and the data for the grids. For this session, I have
-create a separate JS class for each grid. In choreMain.js, you can see the
-code that creates the view model for each grid.
-
-I have used ES5 syntax to create javascript classes. If you look in
-choresView.js, you can see that syntax. You must first create a constructor
-function. That function then creates any instance level variables for the
-class. In order to member methods to the class, you have to add methods
-to the prototype, this is because JS uses prototypical inheritance. Before
-you can add methods and in order to ensure inheritance works properly, you
-need to set the prototype, I'm doing this using Object.create from ES5. Just
-to make sure everything works properly you also want to set the constructor,
-which you see as well. You can do additional research online to learn about
-prototypical inheritance. If you plan on using lots of classes in JS, I'd
-recommend using ES6 syntax, it was approved in July 2015, but there are few
-browsers that support it natively. You would then need to use something else
-like Babel.js or Typescript and perform a build step that converts ES6 syntax
-back into ES5 syntax that is supported by older browsers (IE9 and later).
-
-Previously, we had coupling between the children grid and the chore grid,
-because both needed access to the list of users. Now that we have separate
-classes (e.g. components) for each grid, they are no longer sharing any data.
-This problem had to be fixed during the conversion to components. There are
-multiple ways to fix this problem.
-
-I chose the option of having the code that creates the components be in
-charge of orchestrating the components. You can see that in choreMain.js, it
-registers a callback with chore.UserViewModel and then when that callback is
-called, it passes the information to both chore.ChoreViewModel and
-chore.ThisWeekViewModel. This allows all 3 view models to be connected but
-without needing to know about each other.
-
-There are still two bugs in this application that you could immediately fix:
-   1 - When the users are changed, the chore grid should be updated. Put some
-   code into choresView.js, in the setUsers method. Here you should maybe 
-   update the chores grid, maybe *fetch* it?
-   2 - When the users are changed, the assignments grid should be updated.
-   Put some code into thisWeekView.js, in the setUsers method. Here you
-   should maybe update the this week grid, maybe *fetch* it?
-
-For homework, you could work on the following:
-   1 - Add someway for the chore.ChoreViewModel and chore.ThisWeekViewModel
-   to communicate when the chores are updated by the user. You could do
-   something like what I did for chore.UserViewModel or even better come up
-   with your own pattern.
-   2 - You could experiment with Typescript, if you have VS 2015 or install
-   the latest update to VS 2013. This would let you use the updated ES6 syntax
-   to create the JS classes.
-
-2 - Slow api back-end
----------------------
-This application suffers from a myriad of issues when the server is very slow
-to respond.
-
-First, let me talk about how we can simulate slow server times in this
-application. In the WebAPI back-end, I've written a filter that looks
-for a value in the HTTP request header, called tri-delay. If that value is
-present in the HTTP request header, it will delay the request by the
-requested amount of seconds. If you're interested in the filter implementation,
-search the source code for MakeSlowFilterAttribute.
-
-Now, previously we called $.ajax which is the ajax function provided by
-JQuery. In order to set this new HTTP request header, I've written a function
-called chore.ajax and put it into choreUtils.js. If you look at this function,
-you'll see if you pass an option called triDelay, it will set the proper HTTP
-request header before passing all of your other options along to $.ajax. I've
-all code in the app to use chore.ajax instead of $.ajax. So, if you want to
-delay any request, find the chore.ajax call and then add triDelay: 5 for
-instance to delay the request by 5 seconds. If you want to delay all requests
-by a certain amount, update line 4 in choreUtils.js. Change it from
-something like:
-  var triDelay = ajaxSettings.triDelay;
-to:
-  var triDelay = ajaxSettings.triDelay || 5;
-if the code calling chore.ajax doesn't provide a triDelay option, it will now
-default to a value of 5.
-
-Using this new ability to delay responses from the server, find some
-chore.ajax calls and provide the triDelay option. Or globally update the
-default as shown above in choreUtils.js. Use this to find some bugs in the 
-application.
-
-For example, globally update the delay to 5 seconds in choreUtils.js as shown
-above. You should now be able to go back to the app. Create a new user. Then
-delete the user. While the delete is working, click the edit button. You are
-allowed to edit a user in the process of being deleted, because we haven't
-prevented it. You'll notice that this fails with a server failure, because the
-record being edited no longer exists. You can see this failure in the
-developer console or in the network tab. You'll notice the user doesn't see this
-error. Let's fix that really quick.
-
-In chore.ajax we can also globally deal with server failures. $.ajax returns a
-$.Deferred object. You can register callbacks for either ajax success or ajax
-failure. You call the .done method passing a callback function for success and
-you can call .fail method passing a callback function for error. So, go ahead
-and add this code to chore.ajax after $.ajax.
-
-  response.fail(function () {
-    alert('ajax failure');
-  });
-
-Now, you can go back and try causing the error again. Create a user, then
-delete that user. While being deleted, edit the user. You should now see the
-alert display about an ajax failure. This came from the edit, since by the time
-it happened, the record was already deleted. This is all because we don't
-prevent the user from clicking edit while we are waiting on the server to
-respond to our delete request.
-
-Ok, how do we fix that? The easiest possible solution is to prevent the user
-from doing anything in the page while we wait on the server. In session 2, we
-built a modal dialog capability. I've written a modal dialog called #waitModal
-that doesn't have any buttons. We can display this modal before we start the
-server request and then after we get a response we can hide the modal. This
-will effectively prevent the user from doing anything on the page. You can
-show the modal using this code:
-
-  chore.showModal($("#waitModal"));
-
-and hide modal using this code:
-
-  chore.hideModal($("#waitModal"));
-
-So, in the deleteModalOkClick, show the modal dialog before the call to
-chore.ajax. Make sure you show the modal after the following line:
-  self.showDeleteModal = false;
-and before the call to chore.ajax. And then in the callback function for
-.done, add code to hide the modal. Now, if you try and create the problem
-again, create a user, delete a user and then edit a user, you'll notice you
-can't do the last step because you were prevented from doing anything on the
-page while waiting on the server response for delete. 
-
-You could go through the app and make similiar fixes around all the calls to
-chore.ajax. A couple things to think about, does the modal get hidden if the
-ajax fails? If not, how do you fix that? Can you put this code to show and hide
-the modal in one place, if so, where? How?
-
-More importantly, do you need to show the modal to accomplish your goal of
-preventing the user from making changes on the page while waiting on a
-response from the server? For example, when adding a user do you need to
-prevent clicking on the page while waiting on that operation?
-
-If you think about deleting, could you simply remove the delete/edit icons for
-that row in the grid until you received a response from the server? Maybe you
-remove it from the grid entirely even before you get a response back from the
-server? How would you handle a failure in the delete response in that case? Put
-the record back into the array?
-
-3 - Api errors from back-end
-----------------------------
-Ok, in the earlier section, I showed a simple method for dealing with ajax
-errors, displaying an alert dialog to the user. Let's delve into this issue
-further. 
-
-First, similar to code I wrote for causing the server to respond slowly, I've
-also written code to fake a server failure. You must simply pass an HTTP header
-called tri-statusCode to the back-end. There the WebAPI filter that I wrote,
-FakeResponseFilterAttribute, will look for that HTTP header and if present will
-immediately stop and return that error code, anything other than HTTP 2XX range
-response is considered an error. Common error codes are 500 for internal server
-error, 400 for bad request, 401 for unauthorized. As before you can pass an
-option to chore.ajax called triStatusCode. That option will then cause the
-correct HTTP header value to be set before calling $.ajax. So, try adding
-triStatusCode: 500 to both chore.ajax calls in addEditModalOkClick, found in
-usersView.js. Now, you'll see adding an editing a user always fails from the
-server. You'll see the failure in the developer console and/or the network tab.
-
-If you want to globally cause failures, you can update the chore.ajax function
-in choreUtils.js similar to what we did earlier for slowing the server down.
-Use the || to set a default status code if one isn't provided to the function.
-
-If you do that, you'll notice when you refresh the page, you know get 3
-alerts, because we are making separate ajax calls for each grid. You have to
-manually dismiss each alert separately. This might not be the best approach.
-
-Another approach is to display notifications that automatically disappear
-after some period of time. I've coded something simple up that does that
-if you call:
-
-  chore.showErrorMessage('ajax failure');
-
-This will show that message as a notification in the top right. It will show
-for 5 seconds until it disappears. Change chore.ajax to use
-chore.showErrorMessage instead of alert and see what you think. One of the
-disadvantages of this type of error reporting is you aren't telling the user
-what error happened or why. Ideally, your web api would return some useful
-error code that indicated a better message should be displayed. Let's change
-or global error to only show if the status code is 500. WebAPI will return
-a 500 status code by default if you have an unhandled exception in your C#.
-Let's fix chore.ajax to only show a generic error notification if the status
-code is 500. The callback passed to the done method of $.Deferred is provided
-multiple arguments, the first of which is jqXHR which the jquery response
-object. That has a property called .status which contains the status code
-returned from the server. So, something like this might work:
-
-  request.done(function (jqXHR) {
-    var code = jqXHR.status;
-  });
-
-Can you add code that only calls chore.showErrorMessage if the status
-code is 500?
-
-In general, if your C# server code has detected a problem, it might want to
-return a status code manually other than 500 that is also not in the 2XX range.
-For example, if you attempt to delete a user that has chores created for them,
-the api will return a 409 conflict status code. So, let's update usersView.js
-to deal with that. In deleteModalOkClick, add code to deal with an ajax failure
-and check the status code. If the .status is 409, let's use
-chore.showErrorMessage to display a better error message to the user. Something
-like, 'A user that has chores assigned cannot be deleted. Please delete all
-chores first.'
-
-Remember to use the .fail method of $.Deferred to register a callback function.
-Remember the callback function is provided a first argument which is the jqXHR
-and that has a .status property which provides you the error code.
-
-Ok, for a real world application, some other things you might consider. For
-certain errors, you may want to log the stack trace of your server-side C#
-and generate an error identifier that send back with the 500 status code.
-You could then display that error identifier to the users along with the
-error message. This would allow the users to call into support with that
-number and support or the development team could then look up the stack trace
-that generated that error identifier.
-
-Anothing thing to consider, if ajax requests are aborted, which occurs when
-calling the .abort() method on the $.Deferred() or when the user transitions
-to another page, that is considered an error and the .fail callback is run. So,
-you might want to check for that case and not display a message to the user,
-the second argument to the callback typically is called, textStatus and would
-be "abort" in that case.
-
-Lastly, there is whole bunch of territory in here that relates to both
-API design and application scalability, when it comes to how you handle
-slow server responses, server errors and atomicity.
-
-Atomicity
----------
-For example, one button click shouldn't result in two API calls unless they
-are transactionally unrelated, e.g. one could succeed and one could fail and
-the system would still be in a completely valid state.
-
-Scalability and Server Errors
------------------------------
-Maybe the UI shouldn't wait for an operation to finish. Maybe the API
-shouldn't complete the operation, it should simply return as soon as the
-operation is queued. For instance, think Amazon.com on Black Friday. They
-can't wait on a db call to decrement a inventory account when 10,000+ people
-might be buying the same item at nearly the same second. They simply queue the
-purchase, the UI only waits for the queueing which is very fast. The UI assumes
-the purchase will go through. Later, when the queue is processed on a
-completely different server, it might determine that they ran out of inventory
-and then e-mails all of the affected users to let them know the item ran out
-of stock and then provides them options to cancel their order or wait for the
-item on back-order. By not waiting and assuming a purchase will succeeed
-there is also less error handling code required. It still requires generic
-500, internal server error handling and possibly abort error handling, but
-that is it. Any error that happens while working the queue will be dealt with
-by other means.
-
-4 - Two-way data binding
+1 - Two-way data binding
 ------------------------
 In sessions 1 and 2, we are always calling a method to force a re-render
 of a grid or display of a modal. That kind of pattern is still being used
@@ -319,21 +62,21 @@ with, try the following in the developer console:
   //value of 2
   m.addProperty('testProp', 2);
   //query the property
-  m.testProp;
-  //update the property
-  m.testProp = 3;
-  //query the property
-  m.testProp;
-  //you can subscribe to a property using the .subscribe method
-  m.subscribe('testProp', function () { console.log('--testProp is now ' + m.testProp); });
-  //update the property and see message
-  m.testProp = 5;
-  //the subscription is only called if the value changes
-  //you can also query properties using the .getPropertyValue method
   m.getPropertyValue('testProp');
+  //update the property
+  m.setPropertyValue('testProp', 5);
+  //query the property
+  m.getPropertyValue('testProp');
+  //you can subscribe to a property using the .subscribe method
+  m.subscribe('testProp', function () { console.log('--testProp is now ' + m.getProperty('testProp')); });
+  //update the property and see message
+  m.setPropertyValue('testProp', 10);
+  //the subscription is only called if the value changes
+  //you can also query properties directly
+  m.testProp;
   //and update the propery using the .setPropertValue method
-  m.setPropertyValue('testProp', 6);
-  //in fact, when you use .testProp and .testProp = 10, they are simply
+  m.testProp = 20;
+  //in fact, when you use .testProp and .testProp = 20, they are simply
   //calling .getPropertyValue and .setPropertyValue underneath. This
   //uses a feature of ES5 (supported in IE9 and later) that is very
   //similiar to C# properties. They look like properties, but actually
@@ -381,23 +124,379 @@ tri- attributes that I needed to get usersView.js working are the ones
 I fixed in chore.executeTemplate. If you try and convert the entire app over
 to use two-way data binding, you will need to add code to chore.executeTemplate
 and probably make other changes as well.
-  
-Final thoughts
+
+Why do some frameworks consider two-way data binding bad?
+---------------------------------------------------------
+Let's first talk about the two-ways, so we know what that means.
+
+One-way is when you update the JS, the DOM updates. So, if you set
+the .users array, the grid will update with the new data.
+
+Another way is when you trigger an event, the JS updates. So, if you enter
+text into a textbox or select a value in a dropdown or click a button,
+eventually something updates or is called in your JS.
+
+If you think about building an application, you need both of those things
+to happen in order to build any moderately large application. So, when
+frameworks say they two-way data binding is bad, what do they mean?
+
+I haven't seen an article yet that really explains what the problem is, so
+let me make a guess here. I believe it's two things that they are worried
+about, performance and maintainability.
+
+A framework can easily end up attaching a bunch of event handlers to a bunch
+of elements in a moderately large application. A framework can also end up
+monitoring or subscribing to a large amount of JS object/properties in a
+moderately large application. So, I think frameworks are considering that and
+trying to make some of those things more opt-in as opposed to opt-opt. The goal
+being better performance by default because less things are being automatically
+tracked and updated.
+
+The other concern I think they have in maintainability. All of the frameworks
+have some way to watch or subscribe for JS changes, e.g. similiar to my
+.subscribe method. This feature can be abused as a way to have components
+communicate with each other in subtle and non-obvious ways. Think of code
+similar to this:
+
+file1.js
+--------
+  .Employees = [];
+  .FirstName.subscribe - //update .FullName using .FirstName + .LastName
+  .LastName.subscribe - //update .FullName using .FirstName + .LastName
+file2.js
+--------
+  .Employees.subscribe - //update .Message depending on at least one employee
+file3.js
+--------
+  .Employees.subscribe - //update .LastAdded employee depending on array
+file4.js
+--------
+  .LastAdded.subscribe - //update .LastAddedMessage depending on whether we
+                           have .LastAdded or not
+Now image all of those properties are displayed in HTML at least once, maybe
+more than once. Now image what happens in a dialog that edits a record in
+the .Employees array. Which properties update? What path updates them? What
+about add instead of edit? Delete instead of edit? Now image we have a much
+larger application, e.g. twenty-screens with 100+ JS files. If all of your
+components are coordinating this way, a .FirstName might not do anything
+or it might update 20+ properties and re-render 20+ DOM elements. There isn't
+an easy well to tell which assignment statements have no side-effects vs. which
+have a lot of side-effects. I don't recommend using this pattern in your
+application to coordinate between components, something more obvious should be
+used, maybe .notify('MessageType', 'Value'). Now you can tell the difference
+between .FirstName = and .notify. If the .subscribe feature is abused, you can
+end up with a hard to reason about, hard to debug app. For this reason along
+with performance, I think frameworks are trying to make you work a little bit 
+harder and think before you start using their .subscribe mechanisms to wire
+things together. This hopefully results in easier to maintain code that is
+easier to reason about.
+
+For those that have been programming awhile, I think this is earily similiar
+to the goto statement debates and debates about whether to have multiple
+return statements in a function. Any programming mechanism can be sufficiently
+abused if you aren't sufficiently disciplined, let's share war stories later.
+
+
+2 - Fixes I made to address server slowness
+-------------------------------------------
+
+In the last session we talked about the problems that can occur when you
+don't plan for and address server slowness. For more details on that and
+ways to simulate server slowness, please refer back to that session. I'll
+go through the fixes I made to each grid to deal with the problem.
+
+Children Grid - e.g. usersView.js
+---------------------------------
+This is using two-way data binding, I created a variable called
+.showBlockUserModal. This displays a modal with a spinner and no buttons.
+I then updated the code for add/edit/delete to display the modal, e.g.
+setting that value to true before we start the ajax call to the server.
+Once we receive a response from the server, I set it back to false which
+will hide the modal. This modal prevents the user from doing anything on the
+page while we wait for a response from the server. I would point out that
+previously I only had a callback for a successful response from the server
+(e.g. HTTP status code of 2XX). If there was an error the modal would still
+have been displayed preventing the user from doing anything on the page.
+I added a failure callback using .fail on the JQuery Deferred and also hide
+the modal in that case as well.
+
+Chores Grid - e.g. choresView.js
+--------------------------------
+This doesn't use the two-way data binding. Here I followed a similiar pattern
+of display a modal with a spinner. In this case, I had to use
+chore.showModal($("#waitModal")); to show the modal and then use
+chore.hideModal($("#waitModal")); to hide the modal. Again, I added code
+around add/edit/delete to display the modal while waiting on a response from
+the server.
+
+Assignments Grid - e.g. thisWeekView.js
+---------------------------------------
+This grid only completes or clears chores when you click on the completed
+column. It looks at the current state of the row and then calls the
+appopriate server-side api, either /api/chores/clear or /api/chores/complete.
+So, if you click again while waiting on a response from the server you will
+generate the exact same request to the server and you will change the
+underlying data in exactly the same data, e.g. you complete a chore more than
+once if you click more than once and that is perfectly reasonable. For this
+reason, e.g. the way the ui and api work, there isn't any need to prevent
+user action while waiting on the server. So, no changes were made to this grid.
+
+3 - Fixes I made to address server failures
+-------------------------------------------
+I split server failures into two groups, expected failures and unexpected
+failures.
+
+For unexpected failures, e.g. the server had an uncaught exception, we
+will receive a 500 error according to the default behavior of WebAPI.
+Remember in the previous session, we are no longer using $.ajax directly,
+the entire app uses chore.ajax which allows us to centralize some of our
+error handling. In this method, I added a failure callback. Within that
+callback, I check and ignore an abort failure. An abort failure occurs
+when the page is closed or when the page is navigated to another page, in
+that case any unfinished ajax requests are aborted by the browser. I also
+checked the status code of the error and only if it's a 500 error do I
+do anything. In that case, I display a generic error message using the
+utility method we built last session, chore.showErrorMessage.
+
+We have a few expected errors from our api, listed below:
+  1) DELETE /api/users/[id] - returns a 409 if user has assigned chores
+  2) PUT and POST /api/users - returns a 400 if user has no name
+     or name is only whitespace.
+  3) PUT and POST /api/chores - returns a 400 if chore has no description
+     or description is only whitespace. Also returns a 400 if chore
+	 doesn't have at least one assigned day.
+
+For these cases, I put code specifically into the failure callbacks where
+we call those apis. In the failure callback, I then checked for the specific
+status code and then display an appropriate end-user error message for
+that scenario using chore.showErrorMessage. Notice that for 2) and 3)
+above that is server-side validation that is occuring. Later, I'll talk
+about code I added to do that same validation client-side for a better
+user experience.
+
+4 - Enabling child selection in assignment grid
+-----------------------------------------------
+In the previous session for the assignment grid, we had added a
+dropdown so that users could select the child they wanted to view
+the assignments of. However, in the previous session it didn't work
+yet.
+
+The grid, e.g. thisWeekView.js keeps track of the currently selected user
+id, using the .selectedUserId property. I made adjustments to default this
+value to null in the constructor and then updated the .fetch method to only
+make a request to server if the value is non-null, otherwise it simply
+sets the array of assignments to an empty array. I then had to add event
+handling code to know when the user changes the selection in the dropdown and
+then locate the id of the selected item and update the .selectedUserId
+property and then load the updated chore assignments from the server.
+That was done with some pretty simple JQuery code, shown below:
+    $("#thisWeekUserSelection").on("change", function () {
+      self.selectedUserId = String($("#thisWeekUserSelection").val());
+      self.fetch();
+    });
+
+The most difficult change had to do with getting the list of users and
+dealing with the list of users changing. If you remember from the last
+session, the assignments grid doesn't know how to get the list of users, the
+users are passed into the .setUsers method. More specifically, this .setUsers
+method might never be called or might be called more than once with a different
+set of users each time. Specifically, if you edit the users grid at the top
+of the page, eventually .setUsers will be called with the updated users list.
+So, this method must capture the existing .selectedUserId which could be null
+or could be the id of a user that is currently selected in the dropdown.
+Then, we must see if the user still exists in the new list of users. If so, we
+want to preserve that id in the .selectedUserId. If the user no longer exists
+or if we never had a selected user to begin with, then we should select the
+first user from the new list of users that we have, if we have any. Once that
+is done, we must re-render the dropdown and once it has been re-rendered we
+must select the value in the dropdown corresponding to .selectedUserId. And
+then of course we must fetch the associated assignments for that user from the
+server.
+
+This flow is fairly typical when dealing with dropdowns or related controls,
+some frameworks assist with this partially and some don't provide any
+assistance. To summarize:
+  1) What is the currently selected item when you don't have any options yet?
+  2) When the set of options changes...
+      2.1) What happens to the prior selection? Is it preserved?
+	  2.2) Do you attempt to pick a default selection? If so, which one? And when?
+
+5 - Connecting the chore and assignment grid
+----------------------------------
+In the last session, we separated all the grids into individual components and
+I showed the need to connect the users grid to the other grids. When a change
+is made in the users grid, both the chores and assignments grid need to be
+updated. I showed a pattern of adding a callback to the users grid and then
+a .setUsers method to both the chores and assignments grid. In choreMain.js
+I then showed one-way to wire it up so that any changes from the users grid
+were propagated to the other two grids using the .setUsers method.
+
+For that session though, changes in the chores grid still need to cause
+updates in the assignments grid. I originally considered following the
+exact same pattern, which is passing the new list of chores to a
+callback and then passing that list to the assignments grid via
+a setChores method. However, in this case the assignments grid can't
+really do anything useful with the list of chores, that wasn't the case
+for the other scenario.
+
+What the assignments grid really wants is the id of the user that had their
+chores updated. If it's the same user that we are viewing the assignments of,
+then we need to update from the server. If it's a different user than we are
+viewing the assignments of, we don't need to do anything. So, that's the
+change I implemented, look at choresView.js for choresUpdatedCallback and
+thisWeekView.js for choresUpdated method and then look at choreMain.js to
+see where everything is wired up.
+
+6 - Client-side validation using two-way binding framework
+----------------------------------------------------------
+Previously in section 3, I talked about handling server errors, a few of
+which were really server side validation errors. While that implementation
+does prevent the user from submitting bad data, it's not a great user
+experience. So, we'd like to add client-side validation. The users
+grid uses our custom two-way data binding framework and that's the first
+grid I'd like to add validation to.
+
+I have some partial code in usersView.js and most of the validation code
+is commented out. So, first let's test the server-side validation and
+see the user experience. Try to add or edit an user with either no name
+or a name with only whitespace. You'll see an error message but it's not
+very helpful or informative.
+
+Now, let's enable client-side validation. I've added a property called
+showUserNameValidationError that is either true or false. I've also added
+an <span> tag with a tri-show in the index.html that contains the error
+message that will be shown or hidden. I've also added a .validate method that
+would perform all the validation for the form and then a specific
+.validateUserName method that checks the value the user has entered to see if
+it is empty or only contains whitespace and then sets the
+.showUserNameValidationError property to show or hide the error message to the
+user. 
+
+So, all we need to do is check validation and then prevent saving if we don't
+validate. So, go ahead and uncomment //VALIDATION-1 in the usersViews.js, e.g.
+in the .addEditModalOkClick method. This will call our .validate method
+which checks and will show the error message. If it returns false, we
+immediately exit, e.g. we won't talk to the server or close the dialog. Try
+and see how it works. You'll notice it's a better experience but still not
+great. The message stays even if you've fixed the problem, you only know
+you fixed it because the dialog closed and your add/edit worked.
+
+Let's add some code to run the validation whenever the name changes, uncomment
+//VALIDATION-2 in the usersView.js, e.g. in the constructor. This subscribes
+to changes to the name and then re-runs the validation whenever that happens
+which will show/hide the messsage as appropriate. Now try and see what you
+think. Now, you'll notice that you see the message as soon as bring up the
+dialog. The reason for that is when you bring the dialog up, the name is in
+fact empty which is NOT valid. Maybe that's good or bad depending on your UX
+preferences, but you should notice that the message will show/hide when you
+lose focus on the text box. Why is that? That is because we are using our
+custom two-way data binding framework and we are using tri-value property.
+If you look in choreUtils.js you will see that it registers an event handler
+for the 'blur' event, e.g. when the text box loses focus. At that point it
+updates the JS value which is what calls our subscribe method.
+This is something you'll run into when try to implement some things using
+two-way data binding frameworks, they setup the event handlers for you which
+is good, but they may not setup the event handlers you really wish they did.
+In the next section, we'll talk about doing validation independently of a
+binding framework you might be using.
+
+Having the message show up before the user has typed anything could be 
+considered hostile. Let's fix that, uncomment //VALIDATION-3, that hides
+the error message that is showing because validation has failed. It's fine
+to do this, because when you click the "Ok" button we will re-run validation.
+Now, if you try this it should be a pretty good experience except for the fact
+that you have to lose focus on the text box before the validation error
+disappears.
+
+7 - Client-side validation independently of the framework
+---------------------------------------------------------
+We have one more form that requires client-side validation and that is the
+add/edit chore dialog. We need to check that the Description is not empty
+or whitespace and we have to check that at least one day is selected.
+For this example, I want to write a independent validation library that just
+handles validation. This library is then able to attach the appopriate events
+to the appropriate elements to provide a very dynamic validation experience.
+Validation is not bound to the way a binding framework works. I think that's
+important because the entire point of client-side validation is to provide
+a better UX experience than simply an error message summary that comes back
+from server-side validation.
+
+I've put this library in choreValidation.js. You annotate your elements with
+val-* attributes. I've written three attributes.
+  val-required - this element will be required.
+  val-nowhitespace - this element must have a non-whitespace value
+                     if a value is provided.
+  val-atleastone - this groups checkbox elements together, at least one
+                   item in the group must be selected.
+In order to enable validation, you must call chore.validate passing
+a JQuery element, it returns an object with a .validate method. In order to
+run validation you must call the .validate method. It will then return
+true or false and display any appropriate error messages. It also takes
+care of registering for events and re-running validation dynamically as
+appropriate.
+
+It has two modes, start mode and then validation mode:
+  1) In start mode, nothing is validated and no events are attached.
+  2) Once .validate is called the first time, it validates all the
+	 elements and also attaches events. It then re-runs validation as those
+	 events fire and shows/hides error messages as appropriate.
+
+Try it out with chores and then we can talk about the code behind it and
+changes you could make. You'll notice you can type empty spaces into
+Description and you don't see an error message. Once you click "Ok" you will
+see the error message. As soon as you type into Description, you'll see
+messages show/hide as appropriate even the required message if you empty
+out the field. No need to lose focus on the field to get updates.
+
+There is a bug in both the required and nowhitespace validators. Try using
+the right-click menu to perform the cut/copy/paste actions. You'll notice
+validation is never re-run properly. If look in both validators, you'll see
+they only attach to the keyup event. Using the right-click menu for
+cut/copy/paste won't trigger the keyup event, so validation isn't re-run.
+The browser specifically has 'cut', 'copy' and 'paste' events for these
+right-click menus. Try adding code for those events that re-runs the
+validation. Keep in mind you do need the .off to detach the events as well.
+The .off is there because every time we bring up the dialog, we want to 
+re-initialize validation which means removing any attached event handlers.
+We use the event.[namespace] syntax support by JQuery to be sure that
+we are only removing event handlers that we added.
+
+The pros of having this validation framework separate is that it can attach
+to as many of these events as needed, e.g. maybe touch events for mobile, 
+without having any effect on your general binding framework. Having said
+that, validation is hard to get right, you need multiple event handlers
+different states for when you do and don't run validation, it's worth using a
+pre-existing library to perform validation.
+
+8 - Only showing assignments grid by default
+--------------------------------------------
+You can use the buttons at the top of the page to show/hide the various grids.
+The code for those buttons is in choreNav.js. It initializes the buttons
+based upon which sections are visible by default when the page is loaded.
+
+For example, you can find the <div id="userPanel"> in index.html and add
+style="display: none" to hide it by default. You'll notice that the children
+grid is now hidden and the button is automatically toggled to off.
+
+Feel free to make the same change for the chores grid, e.g. id="chorePanel".
+If you want you could also use HTML5 localStorage, localStorage.getItem(key)
+and localStorage.setItem(key, stringValue) to store the current state of the
+grids between page loads, that way the page starts back however it was the
+last time the user left the page. Simply update choreNav.js to use
+localStorage methods as appropriate.
+
+Final Thoughts
 --------------
+The application at this point is feature complete. You can use this
+application as a testing ground for other things. Some potential ideas:
 
-Things you could work on:
-
-  1 - There is a combo box in the bottom grid to change the assigned chores
-  that are shown. This needs to be wired up, you could add a event listener for
-  the 'change' event on the <select> tag. That would then need to refresh the
-  grid but using a different url, one that included the .Id of the newly
-  selected user.
-  2 - You could change which grids are shown by default on the page, just use
-  style='display: none' for example on the element with id="userPanel". This
-  panel will always be hidden then every time you refresh the page. You could
-  then update choreNav.js to use HTML5 local storage. You could store the
-  state of the panels visibility in HTML5 local storage as the user clicks on
-  the buttons and then during application start-up you could read the values
-  out of HTML5 local storage and then update the buttons and panels visibility
-  as appropriate.
-  3 - Do some of the other experiments listed above.
+1) Convert all JS to use ES6, specifically classes and => functions.
+2) Convert to use Typescript
+3) Convert to use a framework, e.g. Angular, Ember, React, Aurelia
+4) Convert to use a CSS framework, e.g. Bootstrap, Foundation
+5) Experiment with different ways of handling server slowness or
+server failures.
+6) Make it work offline
+7) Convert the WebAPI back-end to use ASP.Net Core.
+8) The grids and navigation will work on mobile currently, but the experience
+could be improved.

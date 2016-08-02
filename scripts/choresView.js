@@ -33,10 +33,11 @@
     $("#choreOnThursday").prop("checked", false);
     $("#choreOnFriday").prop("checked", false);
     $("#choreOnSaturday").prop("checked", false);
+    var validator = chore.validator($("#addEditChoreModal"));
     chore.showModalWindow({
       $element: $("#addEditChoreModal"),
       okCallback: function () {
-        //validation goes here
+        return !validator.validate();
       },
       afterOkCallback: function () {
         chore.showModal($("#waitModal"));
@@ -79,10 +80,11 @@
     chore.executeTemplate($("#addEditChoreModal"), self);
     $("#choreChild").val(String(choreClicked.ChildId));
     $("#choreChild").prop("disabled", "disabled");
+    var validator = chore.validator($("#addEditChoreModal"));
     chore.showModalWindow({
       $element: $("#addEditChoreModal"),
       okCallback: function () {
-        //validation goes here
+        return !validator.validate();
       },
       afterOkCallback: function () {
         chore.showModal($("#waitModal"));

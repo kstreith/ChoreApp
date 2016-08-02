@@ -15,3 +15,11 @@ You can download code for both the beginning and end of a given session. See the
     * Start
       * Either git checkout session2-start
       * Or download the session2-start release zip at https://github.com/kstreith/ChoreApp/releases/tag/session2-start
+3. [Session 3](http://www.meetup.com/TRINUG/events/230571332/) - This session requires VS 2013 or VS 2015.
+    * Start
+      * Either git checkout session3-start
+      * Or download the session3-start release zip at https://github.com/kstreith/ChoreApp/releases/tag/session3-start
+3. [Session 4](http://www.meetup.com/TRINUG/events/232882303/) - This session requires VS 2013 or VS 2015.
+    * Start
+      * Either git checkout session4-start
+      * Or download the session4-start release zip at https://github.com/kstreith/ChoreApp/releases/tag/session4-start
